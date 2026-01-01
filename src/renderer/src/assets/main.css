@@ -1,0 +1,14 @@
+@import 'tailwindcss';
+
+#root {
+  display: flex;
+  height: 100vh;
+}
+
+.active {
+  color: white;
+  background-color: #51a2ff;
+  svg {
+    color: white;
+  }
+}
