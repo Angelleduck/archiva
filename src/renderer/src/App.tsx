@@ -1,6 +1,9 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import RootLayout from './pages/root'
 import Home from './pages/home'
+import Document from './pages/document'
+import Folder from './pages/folder'
+import Search from './pages/search'
 
 const router = createBrowserRouter([
   {
@@ -13,15 +16,15 @@ const router = createBrowserRouter([
       },
       {
         path: 'documents',
-        element: <h1>Documents</h1>
+        element: <Document />
       },
       {
         path: 'folders',
-        element: <h1>Folders</h1>
+        element: <Folder />
       },
       {
         path: 'search',
-        element: <h1>Search</h1>
+        element: <Search />
       }
     ]
   }

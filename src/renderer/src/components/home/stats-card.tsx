@@ -2,7 +2,10 @@ import { type LucideIcon, Cylinder, FileText, Folder } from 'lucide-react'
 
 export function StatsCard(): React.JSX.Element {
   return (
-    <div className="grid md:grid-cols-[repeat(2,minmax(0,250px))] lg:grid-cols-[repeat(3,minmax(0,300px))] gap-6 mb-8">
+    <div
+      className="grid md:grid-cols-[repeat(2,minmax(0,250px))] 
+    lg:grid-cols-[repeat(3,minmax(0,300px))] gap-6 mb-8"
+    >
       <Card Icon={FileText} color="blue" label="Documents" />
       <Card Icon={Folder} color="green" label="Dossiers" />
       <Card Icon={Cylinder} color="purple" label="Espace utilisé" />
@@ -24,7 +27,7 @@ function Card({ Icon, color, label }: CardProps): React.JSX.Element {
     purple: 'from-purple-500 to-purple-600'
   }
   return (
-    <div className="shadow-sm p-6 rounded-md">
+    <div className="shadow-sm p-6 rounded-md bg-white">
       <div
         className={`w-12 h-12 rounded-lg flex items-center justify-center bg-linear-to-r ${cardColor[color]} shadow-sm mb-4`}
       >

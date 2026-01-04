@@ -33,6 +33,18 @@
   src: url('../assets/fonts/inter-v20-latin-700.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
 }
 
+@theme {
+  --color-main-bg: #f9fafb;
+  --color-border-primary: #e5e7eb;
+  --color-primary: #1f2937;
+  --color-secondary: #6a7282;
+}
+
+button,
+input:focus-visible {
+  outline: none;
+}
+
 #root {
   display: flex;
   height: 100vh;
