@@ -2,8 +2,10 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import RootLayout from './pages/root'
 import Home from './pages/home'
 import Document from './pages/document'
-import Folder from './pages/folder'
+import Folders from './pages/folders'
 import Search from './pages/search'
+import { Toaster } from 'sonner'
+import Folder from './pages/folder'
 
 const router = createBrowserRouter([
   {
@@ -20,6 +22,10 @@ const router = createBrowserRouter([
       },
       {
         path: 'folders',
+        element: <Folders />
+      },
+      {
+        path: 'folders/:id',
         element: <Folder />
       },
       {
@@ -31,7 +37,12 @@ const router = createBrowserRouter([
 ])
 
 function App(): React.JSX.Element {
-  return <RouterProvider router={router} />
+  return (
+    <>
+      <Toaster />
+      <RouterProvider router={router} />
+    </>
+  )
 }
 
 export default App

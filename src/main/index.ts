@@ -1,7 +1,10 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import DocumentService from './services/document.service'
+import FolderService from './services/folder.service'
+import fs from 'node:fs'
 
 function createWindow(): void {
   // Create the browser window.
@@ -43,6 +46,17 @@ app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
+  const documentService = new DocumentService()
+  const folderService = new FolderService()
+
+  // added with chatgpt
+  // protocol.registerFileProtocol('local', (request, callback) => {
+  //   const url = request.url.replace('local://', '')
+  //   const decodedPath = decodeURI(url)
+
+  //   callback({ path: decodedPath })
+  // })
+
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
   // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
@@ -50,8 +64,75 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
+  //=========================== Documents ============================//
+
+  ipcMain.handle('document:select-files', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      properties: ['openFile', 'multiSelections'],
+      filters: [{ name: 'Documents', extensions: ['pdf'] }]
+    })
+    if (canceled) {
+      return { success: false }
+    }
+    return { success: true, paths: filePaths }
+  })
+
+  ipcMain.handle('document:import', async (_event, paths, category, tags) => {
+    for (const path of paths) {
+      const parts = path.split('\\')
+      const filename = parts[parts.length - 1]
+      documentService.addFile({ filename, originalPath: path, category, tags })
+    }
+  })
+
+  ipcMain.handle('document:open', async (_event, filePath: string) => {
+    try {
+      if (!fs.existsSync(filePath)) {
+        // handle silently
+        console.log('Path does not exist')
+        return
+      }
+      await shell.openPath(filePath)
+    } catch {
+      console.log('file fail')
+    }
+  })
+
+  ipcMain.handle('document:get-all', async () => {
+    return documentService.getAll()
+  })
+
+  ipcMain.handle('document:get-recentFiles', async () => {
+    return documentService.getRecent()
+  })
+
+  ipcMain.handle('document:delete-file', async (_event, id: string) => {
+    documentService.delete(id)
+  })
+
+  //=========================== Folders ============================//
+
+  ipcMain.handle('folder:create', async (_event, name) => {
+    return folderService.createFolder(name)
+  })
+
+  ipcMain.handle('folder:get-all', async () => {
+    return folderService.getFolders()
+  })
+  ipcMain.handle('folder:get-document', async (_event, id: string) => {
+    return folderService.getFolder(id)
+  })
+  ipcMain.handle('folder:delete', async (_event, id: string) => {
+    return folderService.deleteFolder(id)
+  })
+  ipcMain.handle('folder:add-document', async (_event, folderId: string, documentId: string) => {
+    return folderService.addDocument(folderId, documentId)
+  })
+  ipcMain.handle('folder:remove-document', async (_event, folderId: string, documentId: string) => {
+    return folderService.removeDocument(folderId, documentId)
+  })
+
+  //=========================== Folders ============================//
 
   createWindow()
 
