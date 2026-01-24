@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react'
-import { toast } from 'sonner'
+import toast from 'react-hot-toast'
 
 interface FolderModalProps {
   onCloseModal: () => void

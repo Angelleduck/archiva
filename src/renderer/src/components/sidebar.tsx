@@ -1,4 +1,4 @@
-import { FileText, Folder, House } from 'lucide-react'
+import { Download, FileText, Folder, House } from 'lucide-react'
 import { Glass } from './svg/glass'
 import { NavLink } from 'react-router-dom'
 
@@ -7,19 +7,23 @@ export function Sidebar(): React.JSX.Element {
     <div className="w-64 not-visited:flex flex-col p-4 gap-4 border-r border-gray-200">
       <NavItem href="/">
         <House size={20} className="shrink-0" />
-        Home
+        Accueil
       </NavItem>
       <NavItem href="/documents">
         <FileText size={20} className="shrink-0" />
         Documents
       </NavItem>
+      <NavItem href="/import">
+        <Download size={20} className="shrink-0" />
+        Importer
+      </NavItem>
       <NavItem href="/folders">
         <Folder size={20} className="shrink-0" />
-        Folders
+        Dossiers
       </NavItem>
       <NavItem href="/search">
         <Glass className="size-5 shrink-0" />
-        Search
+        Recherche
       </NavItem>
     </div>
   )

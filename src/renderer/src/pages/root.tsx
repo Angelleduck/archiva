@@ -5,7 +5,7 @@ export default function RootLayout(): React.JSX.Element {
   return (
     <>
       <Sidebar />
-      <main className="flex-1 p-8 bg-main-bg">
+      <main className="flex-1 p-8 bg-main-bg overflow-y-auto">
         <Outlet />
       </main>
     </>

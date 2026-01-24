@@ -2,9 +2,27 @@ import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import DocumentService from './services/document.service'
-import FolderService from './services/folder.service'
+import DocumentService from './services/document/document.service'
+import FolderService from './services/folder/folder.service'
+import SearchService from './services/search.service'
 import fs from 'node:fs'
+import path from 'node:path'
+import type {
+  DeleteType,
+  GetAllType,
+  GetRecentType,
+  OpenDocumentType,
+  SelectFile
+} from './services/document/document.type'
+import {
+  CreateFolderType,
+  DeleteFolderType,
+  GetFolderDocumentsType,
+  GetFoldersType,
+  GetFolderType,
+  AddDocumentType,
+  RemoveDocumentType
+} from './services/folder/folder.type'
 
 function createWindow(): void {
   // Create the browser window.
@@ -48,14 +66,7 @@ app.whenReady().then(() => {
 
   const documentService = new DocumentService()
   const folderService = new FolderService()
-
-  // added with chatgpt
-  // protocol.registerFileProtocol('local', (request, callback) => {
-  //   const url = request.url.replace('local://', '')
-  //   const decodedPath = decodeURI(url)
-
-  //   callback({ path: decodedPath })
-  // })
+  const searchService = new SearchService()
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
@@ -66,7 +77,7 @@ app.whenReady().then(() => {
 
   //=========================== Documents ============================//
 
-  ipcMain.handle('document:select-files', async () => {
+  ipcMain.handle('document:select-files', async (): Promise<SelectFile> => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
       properties: ['openFile', 'multiSelections'],
       filters: [{ name: 'Documents', extensions: ['pdf'] }]
@@ -74,65 +85,94 @@ app.whenReady().then(() => {
     if (canceled) {
       return { success: false }
     }
-    return { success: true, paths: filePaths }
+
+    const documents = filePaths.map((item) => ({
+      filename: path.basename(item),
+      path: item
+    }))
+    return { success: true, data: documents }
   })
 
-  ipcMain.handle('document:import', async (_event, paths, category, tags) => {
-    for (const path of paths) {
-      const parts = path.split('\\')
-      const filename = parts[parts.length - 1]
-      documentService.addFile({ filename, originalPath: path, category, tags })
+  ipcMain.handle('document:import', async (_event, documents, category, tags) => {
+    for (const document of documents) {
+      documentService.addFile({
+        filename: document.filename,
+        originalPath: document.path,
+        category,
+        tags
+      })
     }
   })
 
-  ipcMain.handle('document:open', async (_event, filePath: string) => {
+  ipcMain.handle('document:open', async (_event, filePath: string): Promise<OpenDocumentType> => {
     try {
       if (!fs.existsSync(filePath)) {
-        // handle silently
-        console.log('Path does not exist')
-        return
+        return {
+          success: false,
+          message: "impossible d'ouvrir le fichier. \n Supprimez et re-importez le fichier."
+        }
       }
       await shell.openPath(filePath)
+      return { success: true }
     } catch {
-      console.log('file fail')
+      return {
+        success: false,
+        message: "impossible d'ouvrir le fichier. \n Supprimez et re-importez le fichier."
+      }
     }
   })
 
-  ipcMain.handle('document:get-all', async () => {
+  ipcMain.handle('document:get-all', async (): Promise<GetAllType> => {
     return documentService.getAll()
   })
 
-  ipcMain.handle('document:get-recentFiles', async () => {
+  ipcMain.handle('document:get-recentFiles', async (): Promise<GetRecentType> => {
     return documentService.getRecent()
   })
 
-  ipcMain.handle('document:delete-file', async (_event, id: string) => {
-    documentService.delete(id)
+  ipcMain.handle('document:delete-file', async (_event, id: string): Promise<DeleteType> => {
+    return documentService.delete(id)
   })
 
   //=========================== Folders ============================//
 
-  ipcMain.handle('folder:create', async (_event, name) => {
+  ipcMain.handle('folder:create', async (_event, name): Promise<CreateFolderType> => {
     return folderService.createFolder(name)
   })
 
-  ipcMain.handle('folder:get-all', async () => {
+  ipcMain.handle('folder:get-all', async (): Promise<GetFoldersType> => {
     return folderService.getFolders()
   })
-  ipcMain.handle('folder:get-document', async (_event, id: string) => {
+  ipcMain.handle('folder:get', async (_event, id: string): Promise<GetFolderType> => {
     return folderService.getFolder(id)
   })
-  ipcMain.handle('folder:delete', async (_event, id: string) => {
+  ipcMain.handle(
+    'folder:get-document',
+    async (_event, id: string): Promise<GetFolderDocumentsType> => {
+      return folderService.getFolderDocuments(id)
+    }
+  )
+  ipcMain.handle('folder:delete', async (_event, id: string): Promise<DeleteFolderType> => {
     return folderService.deleteFolder(id)
   })
-  ipcMain.handle('folder:add-document', async (_event, folderId: string, documentId: string) => {
-    return folderService.addDocument(folderId, documentId)
-  })
-  ipcMain.handle('folder:remove-document', async (_event, folderId: string, documentId: string) => {
-    return folderService.removeDocument(folderId, documentId)
-  })
+  ipcMain.handle(
+    'folder:add-document',
+    async (_event, folderId: string, documentId: string): Promise<AddDocumentType> => {
+      return folderService.addDocument(folderId, documentId)
+    }
+  )
+  ipcMain.handle(
+    'folder:remove-document',
+    async (_event, folderId: string, documentId: string): Promise<RemoveDocumentType> => {
+      return folderService.removeDocument(folderId, documentId)
+    }
+  )
 
-  //=========================== Folders ============================//
+  //=========================== Search ============================//
+
+  ipcMain.handle('search:document', async (_event, params) => {
+    return searchService.document(params)
+  })
 
   createWindow()
 

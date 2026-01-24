@@ -1,29 +1,45 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
-import type { GetDocument } from '../types/document'
+import type {
+  DeleteType,
+  GetAllType,
+  GetRecentType,
+  OpenDocumentType,
+  SelectFile
+} from '../main/services/document/document.type'
+import type {
+  AddDocumentType,
+  CreateFolderType,
+  DeleteFolderType,
+  GetFolderDocumentsType,
+  GetFoldersType,
+  GetFolderType,
+  RemoveDocumentType
+} from '../main/services/folder/folder.type'
 
 declare global {
   interface Window {
     electron: ElectronAPI
     api: {
       document: {
-        selectFile: () => Promise<GetDocument>
+        selectFile: () => Promise<SelectFile>
         importFile: (
-          paths: string[],
+          documents: Record<string, any>[],
           category: string | undefined,
           tags: string | undefined
         ) => Promise<void>
-        getAll: () => Promise<string[]>
-        getRecent: () => Promise<string[]>
-        open: (path: string) => Promise<void>
+        getAll: () => Promise<GetAllType>
+        getRecent: () => Promise<GetRecentType>
+        open: (path: string) => Promise<OpenDocumentType>
         delete: (id: string) => Promise<string[]>
       }
       folder: {
-        getAll: () => Promise<void>
-        getDocuments: (id: string) => Promise<void>
-        create: (name: string) => Promise<void>
-        delete: (id: string) => Promise<void>
-        addDocument: (folderId: stringId, documentId: string) => Promise<void>
-        removeDocument: (folderId: stringId, documentId: string) => Promise<void>
+        getAll: () => Promise<GetFoldersType>
+        get: (id: string) => Promise<GetFolderType>
+        getDocuments: (id: string) => Promise<GetFolderDocumentsType>
+        create: (name: string) => Promise<CreateFolderType>
+        delete: (id: string) => Promise<DeleteFolderType>
+        addDocument: (folderId: stringId, documentId: string) => Promise<AddDocumentType>
+        removeDocument: (folderId: stringId, documentId: string) => Promise<RemoveDocumentType>
       }
       search: {
         query: (params: any) => Promise<void>

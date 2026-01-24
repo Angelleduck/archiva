@@ -1,11 +1,12 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import RootLayout from './pages/root'
 import Home from './pages/home'
-import Document from './pages/document'
+import Import from './pages/import'
 import Folders from './pages/folders'
 import Search from './pages/search'
-import { Toaster } from 'sonner'
 import Folder from './pages/folder'
+import Document from './pages/document'
+import { Toaster } from 'react-hot-toast'
 
 const router = createBrowserRouter([
   {
@@ -15,6 +16,10 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Home />
+      },
+      {
+        path: 'import',
+        element: <Import />
       },
       {
         path: 'documents',
@@ -39,7 +44,7 @@ const router = createBrowserRouter([
 function App(): React.JSX.Element {
   return (
     <>
-      <Toaster />
+      <Toaster position="bottom-right" reverseOrder={false} />
       <RouterProvider router={router} />
     </>
   )

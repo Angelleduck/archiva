@@ -45,7 +45,6 @@ class DatabaseService {
         filename TEXT NOT NULL UNIQUE,
         path TEXT NOT NULL,
         size INTEGER,
-        type TEXT NOT NULL,
         category TEXT,
         tags TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP

@@ -2,9 +2,10 @@ import { FolderModal } from '@renderer/components/folder/modal/add-folder'
 import { File, FolderIcon, Plus, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { DocumentWithCount } from 'src/main/services/folder/folder.type'
 
 export default function Folders(): React.JSX.Element {
-  const [folders, setFolders] = useState([])
+  const [folders, setFolders] = useState<DocumentWithCount[]>([])
   const [showModal, setShowModal] = useState(false)
   const [trigger, setTrigger] = useState(0)
 
@@ -12,8 +13,10 @@ export default function Folders(): React.JSX.Element {
 
   useEffect(() => {
     async function getFolders(): Promise<void> {
-      const data = await window.api.folder.getAll()
-      setFolders(data)
+      const result = await window.api.folder.getAll()
+      if (result.success) {
+        setFolders(result.data)
+      }
     }
     getFolders()
   }, [trigger])
@@ -41,7 +44,8 @@ export default function Folders(): React.JSX.Element {
         <button
           type="button"
           onClick={() => setShowModal(true)}
-          className="flex gap-2 bg-blue-400 py-2 rounded-lg text-white px-4 items-center cursor-pointer"
+          className="flex gap-2 bg-blue-400 py-2 rounded-lg hover:bg-blue-500
+          text-white px-4 items-center cursor-pointer"
         >
           <Plus />
           Nouveau dossier

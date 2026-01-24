@@ -1,15 +1,21 @@
+import { Glass } from '@renderer/components/svg/glass'
+import { debounce } from '@renderer/helper/utils'
 import { FolderIcon, Plus } from 'lucide-react'
+import { useMemo } from 'react'
+import { Document } from 'src/main/services/document/document.type'
 
 interface DocumentModalProps {
   onCloseModal: () => void
   onTrigger: () => void
-  documents: Record<string, any>[]
-  folderId: string
+  onFilterDocuments: (value) => void
+  documents: Document[]
+  folderId: string | undefined
 }
 
 export function DocumentModal({
   onCloseModal,
   onTrigger,
+  onFilterDocuments,
   documents,
   folderId
 }: DocumentModalProps): React.JSX.Element {
@@ -18,12 +24,32 @@ export function DocumentModal({
     onTrigger()
     onCloseModal()
   }
+
+  const handleSearch = (value: string): void => {
+    const data = documents.filter((el) => el.filename.toLowerCase().includes(value))
+    onFilterDocuments(data)
+  }
+
+  const debouncedHandleSearch = useMemo(() => debounce(handleSearch, 600), [])
   return (
     <div className="inset-0 fixed bg-black/50 z-10 flex justify-center items-center">
       <div className="basis-2xl bg-white p-6 rounded-lg">
         <h3 className="font-bold text-xl mb-2">Ajouter un document</h3>
 
-        <div className="mb-4 space-y-2">
+        <div
+          className="px-3 border-2 border-border-primary rounded-lg bg-white relative 
+          flex items-center gap-3 focus-within:border-blue-300 mb-2"
+        >
+          <Glass className="w-5 h-5 text-gray-400" />
+          <input
+            onChange={(e) => debouncedHandleSearch(e.target.value.toLowerCase())}
+            type="text"
+            placeholder="Rechercher par nom"
+            className="w-full py-3"
+          />
+        </div>
+
+        <div className="mb-4 space-y-2 max-h-100 overflow-y-auto">
           {documents.length == 0 ? (
             <p className="text-center text-secondary my-12">
               Tous vos documents sont déjà dans ce dossier

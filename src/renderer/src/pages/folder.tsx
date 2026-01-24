@@ -1,30 +1,51 @@
 import { DocumentModal } from '@renderer/components/folder/modal/add-document'
-import { ChevronLeft, FolderIcon, Plus, X } from 'lucide-react'
+import { ChevronLeft, File, FolderIcon, Plus, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { Document } from 'src/main/services/document/document.type'
+import type {
+  FolderDocuments as FolderDocumentsType,
+  Folder as FolderType
+} from 'src/main/services/folder/folder.type'
 
 export default function Folder(): React.JSX.Element {
-  const [folderDocuments, setFolderDocuments] = useState([])
-  const [documentsNotInFolder, setDocumentsNotInFolder] = useState([])
+  const [folderDocuments, setFolderDocuments] = useState<FolderDocumentsType[]>([])
+  const [documentsNotInFolder, setDocumentsNotInFolder] = useState<Document[]>([])
+  const [folder, setFolder] = useState<FolderType>()
   const [showModal, setShowModal] = useState(false)
   const [trigger, setTrigger] = useState(0)
   const navigate = useNavigate()
   const { id } = useParams()
 
   useEffect(() => {
-    async function getFolderDocuments(id: string): Promise<void> {
-      const data = await window.api.folder.getDocuments(id)
-      const allDocuments = await window.api.document.getAll()
+    async function getFolderDocuments(id: string | undefined): Promise<void> {
+      if (!id) return
+      const [documentResult, folderResult] = await Promise.all([
+        window.api.folder.getDocuments(id),
+        window.api.folder.get(id)
+      ])
 
-      console.log(data)
-      setFolderDocuments(data)
-
-      const result = allDocuments.filter((doc) => !data.find((fd) => fd.id === doc.id))
-
-      setDocumentsNotInFolder(result)
+      if (documentResult.success == true && folderResult.success == true) {
+        setFolderDocuments(documentResult.data)
+        setFolder(folderResult.data)
+      }
     }
     getFolderDocuments(id)
   }, [id, trigger])
+
+  useEffect(() => {
+    async function getAlldocument(): Promise<void> {
+      const allDocuments = await window.api.document.getAll()
+
+      if (allDocuments.success) {
+        const result = allDocuments.data.filter(
+          (doc) => !folderDocuments.find((fd) => fd.id === doc.id)
+        )
+        setDocumentsNotInFolder(result)
+      }
+    }
+    getAlldocument()
+  }, [folderDocuments])
 
   const handleCloseModal = (): void => {
     setShowModal(false)
@@ -37,9 +58,15 @@ export default function Folder(): React.JSX.Element {
     await window.api.document.open(filePath)
   }
 
-  const handleRemoveDocument = async (folderId: string, documentId: string): Promise<void> => {
+  const handleRemoveDocument = async (
+    folderId: string | undefined,
+    documentId: string
+  ): Promise<void> => {
     await window.api.folder.removeDocument(folderId, documentId)
     handleTrigger()
+  }
+  const handleFilterDocuments = (value): void => {
+    setDocumentsNotInFolder(value)
   }
   return (
     <>
@@ -48,6 +75,7 @@ export default function Folder(): React.JSX.Element {
           onCloseModal={handleCloseModal}
           folderId={id}
           documents={documentsNotInFolder}
+          onFilterDocuments={handleFilterDocuments}
           onTrigger={handleTrigger}
         />
       )}
@@ -65,12 +93,13 @@ export default function Folder(): React.JSX.Element {
                 <div className="w-11 h-11 bg-blue-100 flex items-center justify-center rounded-md gap-2">
                   <FolderIcon size={20} className="fill-blue-600 stroke-blue-600 shrink-0" />
                 </div>
-                <p>Name</p>
+                <p>{folder?.name}</p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowModal(true)}
-                className="flex gap-2 bg-blue-400 py-2 rounded-lg text-white px-4 items-center cursor-pointer"
+                className="flex gap-2 bg-blue-400 py-2 rounded-lg hover:bg-blue-500
+                text-white px-4 items-center cursor-pointer"
               >
                 <Plus />
                 Ajouter un document
@@ -97,7 +126,7 @@ export default function Folder(): React.JSX.Element {
               >
                 <div className="flex gap-2 w-full">
                   <div className="w-10 h-10 bg-blue-100 flex items-center justify-center rounded-md gap-2">
-                    <FolderIcon size={20} className="fill-blue-600 stroke-blue-600 shrink-0" />
+                    <File size={20} className="fill-blue-600 stroke-blue-600 shrink-0" />
                   </div>
                   <div className="flex justify-between items-center w-full">
                     <div className="flex flex-col">

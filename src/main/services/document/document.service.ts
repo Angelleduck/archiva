@@ -1,7 +1,14 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { AddFileProps } from '../../types/database'
-import DatabaseService from '../db/database'
+import DatabaseService from '../../db/database'
+import type {
+  AddFileProps,
+  AddFileType,
+  DeleteType,
+  Document,
+  GetAllType,
+  GetRecentType
+} from './document.type'
 
 class DocumentService {
   private dbService: DatabaseService
@@ -10,7 +17,7 @@ class DocumentService {
     this.dbService = DatabaseService.getInstance()
   }
 
-  addFile(data: AddFileProps): { success: boolean } {
+  addFile(data: AddFileProps): AddFileType {
     try {
       const { filename, originalPath, category, tags } = data
 
@@ -22,9 +29,9 @@ class DocumentService {
       const storedPath = path.join(this.dbService.documentsDir, filename)
 
       const stmt = this.dbService.db.prepare(
-        'INSERT INTO documents (filename, path, size, type, category, tags) VALUES (?, ?, ?, ?, ?, ?)'
+        'INSERT INTO documents (filename, path, size, category, tags) VALUES (?, ?, ?, ?, ?)'
       )
-      stmt.run(filename, storedPath, fileSize, 'pdf', category, tags)
+      stmt.run(filename, storedPath, fileSize, category, tags)
 
       fs.copyFileSync(originalPath, storedPath)
 
@@ -34,27 +41,33 @@ class DocumentService {
     }
   }
 
-  getAll(): unknown[] {
-    const stmt = this.dbService.db.prepare('SELECT * FROM documents')
-    return stmt.all()
+  getAll(): GetAllType {
+    try {
+      const stmt = this.dbService.db.prepare<[], Document>('SELECT * FROM documents')
+      const rows = stmt.all()
+      return { success: true, data: rows }
+    } catch {
+      return { success: false }
+    }
   }
 
-  getRecent(): unknown[] {
+  getRecent(): GetRecentType {
     try {
-      const stmt = this.dbService.db.prepare(`
+      const stmt = this.dbService.db.prepare<[], Document>(`
         SELECT * FROM documents
         ORDER BY id DESC
         LIMIT 5
       `)
-      return stmt.all()
+      const rows = stmt.all()
+      return { success: true, data: rows }
     } catch {
-      return []
+      return { success: false }
     }
   }
 
-  delete(id: string): void {
+  delete(id: string): DeleteType {
     try {
-      console.log('deleted')
+      // later  verify path
 
       const stmtPath = this.dbService.db.prepare(`
         SELECT path FROM documents
@@ -65,11 +78,18 @@ class DocumentService {
       const stmt = this.dbService.db.prepare('DELETE FROM documents WHERE id = ?')
       stmt.run(id)
 
+      // if path doesn't exist it means file has been deleted or renamed manually
+      if (!fs.existsSync(result.path)) {
+        return { success: true, message: 'fichier supprimé' }
+      }
+
       fs.unlink(result.path, (err) => {
         if (err) throw err
       })
-    } catch (error) {
-      console.error('Error deleting file:', error)
+
+      return { success: true }
+    } catch {
+      return { success: false }
     }
   }
 }

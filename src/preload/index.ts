@@ -1,30 +1,49 @@
 import { contextBridge, ipcRenderer } from 'electron'
+import type {
+  DeleteType,
+  GetAllType,
+  GetRecentType,
+  OpenDocumentType,
+  SelectFile
+} from '../main/services/document/document.type'
+import type {
+  AddDocumentType,
+  CreateFolderType,
+  DeleteFolderType,
+  GetFolderDocumentsType,
+  GetFoldersType,
+  GetFolderType,
+  RemoveDocumentType
+} from '../main/services/folder/folder.type'
 
 // Custom APIs for renderer
 const api = {
   //=========================== Documents ============================//
   document: {
-    selectFile: () => ipcRenderer.invoke('document:select-files'),
-    importFile: (paths: string[], category: string, tags: string) =>
-      ipcRenderer.invoke('document:import', paths, category, tags),
-    getAll: () => ipcRenderer.invoke('document:get-all'),
-    getRecent: () => ipcRenderer.invoke('document:get-recentFiles'),
-    open: (filePath: string) => ipcRenderer.invoke('document:open', filePath),
-    delete: (id: string) => ipcRenderer.invoke('document:delete-file', id)
+    selectFile: (): Promise<SelectFile> => ipcRenderer.invoke('document:select-files'),
+    importFile: (documents: Record<string, any>[], category: string, tags: string) =>
+      ipcRenderer.invoke('document:import', documents, category, tags),
+    getAll: (): Promise<GetAllType> => ipcRenderer.invoke('document:get-all'),
+    getRecent: (): Promise<GetRecentType> => ipcRenderer.invoke('document:get-recentFiles'),
+    open: (filePath: string): Promise<OpenDocumentType> =>
+      ipcRenderer.invoke('document:open', filePath),
+    delete: (id: string): Promise<DeleteType> => ipcRenderer.invoke('document:delete-file', id)
   },
 
   //=========================== Folders ============================//
   folder: {
-    getAll: () => ipcRenderer.invoke('folder:get-all'),
-    getDocuments: (id: string) => ipcRenderer.invoke('folder:get-document', id),
-    create: (name: string) => ipcRenderer.invoke('folder:create', name),
-    delete: (id: string) => ipcRenderer.invoke('folder:delete', id),
-    addDocument: (folderId: string, documentId: string) =>
+    getAll: (): Promise<GetFoldersType> => ipcRenderer.invoke('folder:get-all'),
+    get: (id: string): Promise<GetFolderType> => ipcRenderer.invoke('folder:get', id),
+    getDocuments: (id: string): Promise<GetFolderDocumentsType> =>
+      ipcRenderer.invoke('folder:get-document', id),
+    create: (name: string): Promise<CreateFolderType> => ipcRenderer.invoke('folder:create', name),
+    delete: (id: string): Promise<DeleteFolderType> => ipcRenderer.invoke('folder:delete', id),
+    addDocument: (folderId: string, documentId: string): Promise<AddDocumentType> =>
       ipcRenderer.invoke('folder:add-document', folderId, documentId),
-    removeDocument: (folderId: string, documentId: string) =>
+    removeDocument: (folderId: string, documentId: string): Promise<RemoveDocumentType> =>
       ipcRenderer.invoke('folder:remove-document', folderId, documentId)
   },
-  //=========================== Folders ============================//
+  //=========================== Search ============================//
 
   search: {
     query: (params: any) => ipcRenderer.invoke('search:document', params)

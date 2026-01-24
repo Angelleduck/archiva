@@ -1,143 +1,87 @@
-import { File, Trash2, Upload } from 'lucide-react'
-import { useEffect, useState } from 'react'
-// import { toast } from 'sonner'
+import { Glass } from '@renderer/components/svg/glass'
+import { debounce } from '@renderer/helper/utils'
+import { File, Trash2 } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import toast from 'react-hot-toast'
+import type { Document as DocumentType } from 'src/main/services/document/document.type'
 
 export default function Document(): React.JSX.Element {
-  const [paths, setPaths] = useState<string[]>([])
-  const [files, setFiles] = useState<string[]>([])
+  const [documents, setDocuments] = useState<DocumentType[]>([])
+  const [searchTerm, setSearchTerm] = useState('')
   const [trigger, setTrigger] = useState(0)
-  const [tags, setTags] = useState<string>()
-  const [category, setCategory] = useState<string>()
 
   useEffect(() => {
-    async function getDocument(): Promise<void> {
-      const data = await window.api.document.getRecent()
-      setFiles(data)
+    async function getAlldocument(): Promise<void> {
+      const result = await window.api.document.getAll()
+      if (result.success) {
+        setDocuments(result.data)
+      }
     }
-    getDocument()
+    getAlldocument()
   }, [trigger])
 
-  async function handleSelectFile(): Promise<void> {
-    const data = await window.api.document.selectFile()
-
-    if (data.success) {
-      setPaths(data.paths)
+  // Memoize filtering for performance with large datasets
+  const filteredDocuments = useMemo(() => {
+    if (searchTerm.length < 2) {
+      return documents
     }
-  }
 
-  async function handleImport(): Promise<void> {
-    if (paths.length === 0) {
-      return
-    }
-    await window.api.document.importFile(paths, category, tags)
-    setTrigger((prev) => prev + 1)
-  }
+    return documents.filter((doc) => doc.filename.toLowerCase().includes(searchTerm))
+  }, [documents, searchTerm])
+
+  // Debounce with useCallback
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedSetSearchTerm = useCallback(
+    debounce((value: string) => setSearchTerm(value), 500),
+    []
+  )
 
   const handleOpenDocument = async (filePath: string): Promise<void> => {
-    await window.api.document.open(filePath)
+    const result = await window.api.document.open(filePath)
+    if (result.success == false && result.message) {
+      toast.error(result.message)
+    }
   }
 
-  const deleteFile = async (id: string): Promise<void> => {
+  // later check if it's better tto use optimistic ui by filtering item than refecthing
+  const handleDeleteFile = async (id: string): Promise<void> => {
     await window.api.document.delete(id)
     setTrigger((prev) => prev + 1)
   }
 
   return (
-    <div className="space-y-4">
-      <div className="p-6 rounded-lg bg-white border border-gray-200">
-        <h3 className="text-lg font-semibold mb-4">Importer des documents</h3>
-        <div className="space-y-6">
-          <button
-            type="button"
-            className="flex py-4 w-full justify-center items-center border-2 border-blue-300
-         rounded-lg font-semibold text-blue-300 gap-2 cursor-pointer"
-            onClick={handleSelectFile}
-          >
-            <Upload size={24} />
-            Sélectionner des fichiers
-          </button>
-
-          <div className="space-y-2">
-            <label htmlFor="tags" className="block text-sm">
-              Tags (optionnel)
-            </label>
-
-            <input
-              id="tags"
-              onChange={(e) => {
-                setTags(e.target.value)
-              }}
-              className="border-2 outline-none transition-all duration-300 border-border-primary focus:border-blue-300 w-full p-2 rounded-md"
-              placeholder="Séparez par des virgules: 2024, important, fiscal"
-              type="text"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label htmlFor="categorie" className="block text-sm">
-              Catégorie (optionnel)
-            </label>
-
-            <select
-              name="pets"
-              id="categorie"
-              onChange={(e) => {
-                setCategory(e.target.value)
-              }}
-              className="w-full border-2 transition-all duration-300 border-border-primary rounded-md p-2.5 
-            mt-1 outline-none focus:border-blue-300"
-            >
-              <option value="">Sélectionner une catégorie</option>
-              <option value="impôt">Impôt</option>
-              <option value="marcher">Marcher</option>
-            </select>
-          </div>
-
-          <button
-            className={`w-full text-white bg-blue-400 py-3 rounded-lg
-            ${paths.length === 0 ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-            onClick={handleImport}
-          >
-            Importer les documents
-          </button>
-        </div>
+    <div>
+      <div className="px-3 border-2 border-border-primary rounded-lg bg-white relative flex items-center gap-3 focus-within:border-blue-300 mb-2">
+        <Glass className="w-5 h-5 text-gray-400" />
+        <input
+          onChange={(e) => debouncedSetSearchTerm(e.target.value.toLowerCase())}
+          type="text"
+          placeholder="Rechercher par nom"
+          className="w-full py-3"
+        />
       </div>
-      <div className="py-2 rounded-lg bg-white border border-gray-200 ">
-        <div className="p-2.5">
-          <h2 className="text-xl font-bold">Recement Ajouter</h2>
-        </div>
-        <div>
-          {files.map((el, idx) => (
-            <div key={idx} className="py-3 px-2.5 border-t border-border-primary">
-              <div className="flex gap-4 ">
-                <File size={32} className="shrink-0" />
-                <div className="flex justify-between gap-2 items-center w-full">
-                  <div className="flex flex-col">
-                    <button
-                      onClick={() => {
-                        handleOpenDocument(el.path)
-                      }}
-                      className="font-semibold text-primary cursor-pointer hover:text-blue-300 leading-tight"
-                    >
-                      {el.filename}
-                    </button>
-                    <div className="text-sm text-secondary">
-                      <span>2 MB</span>
-                    </div>
-                  </div>
-                  <div
-                    className="p-2 hover:bg-red-50 text-red-400 rounded-lg cursor-pointer"
-                    onClick={() => {
-                      deleteFile(el.id)
-                    }}
-                  >
-                    <Trash2 className="shrink-0" />
-                  </div>
-                </div>
-              </div>
+
+      <div className="grid grid-cols-4 gap-x-6 gap-y-8">
+        {filteredDocuments.map((doc) => (
+          <div
+            onClick={() => handleOpenDocument(doc.path)}
+            key={doc.id}
+            className="p-5 border border-border-primary rounded-lg bg-white hover:shadow-md cursor-pointer transition-all duration-200 relative"
+          >
+            <Trash2
+              onClick={(e) => {
+                e.stopPropagation()
+                handleDeleteFile(doc.id)
+              }}
+              size={20}
+              className="absolute right-6 top-6 text-secondary hover:text-red-400"
+            />
+            <div className="w-11 h-11 bg-blue-100 flex items-center justify-center rounded-md mb-5">
+              <File size={20} className="fill-blue-600 stroke-blue-600" />
             </div>
-          ))}
-        </div>
+            <p className="font-semibold mb-2 text-primary">{doc.filename}</p>
+          </div>
+        ))}
       </div>
     </div>
   )
