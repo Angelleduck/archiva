@@ -30,6 +30,7 @@ export function DocumentModal({
     onFilterDocuments(data)
   }
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization, react-hooks/exhaustive-deps
   const debouncedHandleSearch = useMemo(() => debounce(handleSearch, 600), [])
   return (
     <div className="inset-0 fixed bg-black/50 z-10 flex justify-center items-center">
