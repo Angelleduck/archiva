@@ -9,7 +9,7 @@ interface Document {
   id: string
   filename: string
   path: string
-  size: string
+  size: number
   category?: string
   tags?: string
   created_at: string

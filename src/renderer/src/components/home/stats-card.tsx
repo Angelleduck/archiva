@@ -1,14 +1,32 @@
+import { formatSize } from '@renderer/helper/utils'
 import { type LucideIcon, Cylinder, FileText, Folder } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 export function StatsCard(): React.JSX.Element {
+  const [stats, setStats] = useState({
+    totalDocuments: 0,
+    totalFolders: 0,
+    storageUsed: 0
+  })
+  useEffect(() => {
+    async function getStats() {
+      const data = await window.api.document.stats()
+      setStats({
+        totalDocuments: data.total_file,
+        totalFolders: data.total_folder,
+        storageUsed: data.total_size
+      })
+    }
+    getStats()
+  }, [])
   return (
     <div
       className="grid md:grid-cols-[repeat(2,minmax(0,250px))] 
     lg:grid-cols-[repeat(3,minmax(0,300px))] gap-6 mb-8"
     >
-      <Card Icon={FileText} color="blue" label="Documents" />
-      <Card Icon={Folder} color="green" label="Dossiers" />
-      <Card Icon={Cylinder} color="purple" label="Espace utilisé" />
+      <Card Icon={FileText} color="blue" label="Documents" total={stats.totalDocuments} />
+      <Card Icon={Folder} color="green" label="Dossiers" total={stats.totalFolders} />
+      <Card Icon={Cylinder} color="purple" label="Espace utilisé" total={stats.storageUsed} />
     </div>
   )
 }
@@ -19,7 +37,7 @@ interface CardProps {
   label: string
 }
 
-function Card({ Icon, color, label }: CardProps): React.JSX.Element {
+function Card({ Icon, color, label, total }: CardProps): React.JSX.Element {
   const cardColor = {
     orange: 'from-orange-500 to-orange-600',
     green: 'from-green-500 to-green-600',
@@ -33,7 +51,9 @@ function Card({ Icon, color, label }: CardProps): React.JSX.Element {
       >
         <Icon color="#fff" />
       </div>
-      <h1 className="mb-1.5 text-2xl font-bold">4</h1>
+      <h1 className="mb-1.5 text-2xl font-bold">
+        {label !== 'Espace utilisé' ? total : formatSize(total)}
+      </h1>
       <p className="text-sm">{label}</p>
     </div>
   )

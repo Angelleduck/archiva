@@ -74,7 +74,8 @@ class FolderService {
           d.id,
           d.filename,
           d.path,
-          d.created_at
+          d.created_at,
+          d.size
         FROM documents d
         INNER JOIN document_folders df
           ON d.id = df.document_id

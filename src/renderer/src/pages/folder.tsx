@@ -1,4 +1,5 @@
 import { DocumentModal } from '@renderer/components/folder/modal/add-document'
+import { formatSize } from '@renderer/helper/utils'
 import { ChevronLeft, File, FolderIcon, Plus, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -115,11 +116,11 @@ export default function Folder(): React.JSX.Element {
           <h3 className="mb-6">Documents({folderDocuments.length})</h3>
 
           <div className="space-y-4">
-            {folderDocuments.map((el, idx) => (
+            {folderDocuments.map((doc, idx) => (
               <div
                 key={idx}
                 onClick={() => {
-                  handleOpenDocument(el.path)
+                  handleOpenDocument(doc.path)
                 }}
                 className="flex items-center justify-between p-4 bg-gray-50 rounded-lg
                 hover:bg-gray-100 transition-colors cursor-pointer"
@@ -130,15 +131,17 @@ export default function Folder(): React.JSX.Element {
                   </div>
                   <div className="flex justify-between items-center w-full">
                     <div className="flex flex-col">
-                      <p className="text-sm font-medium">{el.filename}</p>
-                      <p className="text-xs">
-                        {new Date(el.created_at).toLocaleDateString('fr-FR')}
+                      <p className="text-sm font-medium">{doc.filename}</p>
+                      <p className="text-xs flex gap-1">
+                        <span>{formatSize(doc.size)}</span>
+                        <span>•</span>
+                        <span>{new Date(doc.created_at).toLocaleDateString('fr-FR')}</span>
                       </p>
                     </div>
                     <X
                       onClick={(e) => {
                         e.stopPropagation()
-                        handleRemoveDocument(id, el.id)
+                        handleRemoveDocument(id, doc.id)
                       }}
                       className="text-secondary hover:text-red-400"
                     />

@@ -13,6 +13,7 @@ interface FolderDocuments {
   filename: string
   path: string
   created_at: string
+  size: number
 }
 type CreateFolderType = { success: boolean; message?: string }
 type GetFoldersType =

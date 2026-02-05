@@ -13,10 +13,10 @@ export function FolderModal({ onCloseModal, onTrigger }: FolderModalProps): Reac
     const formData = new FormData(e.currentTarget)
     const folderName = formData.get('name') as string
     if (folderName.length < 3) {
-      toast.error('Trop court')
+      toast.error('Nom trop court')
       return
-    } else if (folderName.length > 12) {
-      toast.error('Trop long')
+    } else if (folderName.length > 15) {
+      toast.error('Nom Trop long')
       return
     }
     window.api.folder.create(folderName)

@@ -1,3 +1,4 @@
+import { formatSize } from '@renderer/helper/utils'
 import { Download, File, Trash2, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
@@ -152,7 +153,7 @@ export default function Import(): React.JSX.Element {
                       {doc.filename}
                     </button>
                     <div className="text-sm text-secondary">
-                      <span>2 MB</span>
+                      <span>{formatSize(doc.size)}</span>
                     </div>
                   </div>
                   <div

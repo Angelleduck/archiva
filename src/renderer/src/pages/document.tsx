@@ -1,5 +1,5 @@
 import { Glass } from '@renderer/components/svg/glass'
-import { debounce } from '@renderer/helper/utils'
+import { debounce, formatSize } from '@renderer/helper/utils'
 import { File, Trash2 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
@@ -79,7 +79,12 @@ export default function Document(): React.JSX.Element {
             <div className="w-11 h-11 bg-blue-100 flex items-center justify-center rounded-md mb-5">
               <File size={20} className="fill-blue-600 stroke-blue-600" />
             </div>
-            <p className="font-semibold mb-2 text-primary">{doc.filename}</p>
+            <p className="font-semibold mb-1 text-primary truncate">{doc.filename}</p>
+            <p className="text-xs flex gap-1">
+              <span>{formatSize(doc.size)}</span>
+              <span>•</span>
+              <span>{new Date(doc.created_at).toLocaleDateString('fr-FR')}</span>
+            </p>
           </div>
         ))}
       </div>

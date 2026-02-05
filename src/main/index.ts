@@ -134,6 +134,10 @@ app.whenReady().then(() => {
     return documentService.delete(id)
   })
 
+  ipcMain.handle('document:get-stats', async () => {
+    return documentService.getStats()
+  })
+
   //=========================== Folders ============================//
 
   ipcMain.handle('folder:create', async (_event, name): Promise<CreateFolderType> => {

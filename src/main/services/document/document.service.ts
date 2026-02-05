@@ -92,6 +92,33 @@ class DocumentService {
       return { success: false }
     }
   }
+
+  getStats(): void {
+    try {
+      const stmtFile = this.dbService.db.prepare(`
+        SELECT count(*) as total_file FROM documents;
+      `)
+      const stmtFolder = this.dbService.db.prepare(`
+        SELECT count(*) as total_folder FROM folders;
+        `)
+      const stmtSize = this.dbService.db.prepare(`
+        SELECT sum(size) as total_size FROM documents;
+        `)
+      const data_file = stmtFile.get() as { total_file: number }
+      const data_folder = stmtFolder.get() as { total_folder: number }
+      const data_size = stmtSize.get() as { total_size: number }
+
+      const obj = {
+        total_file: data_file.total_file,
+        total_folder: data_folder.total_folder,
+        total_size: data_size.total_size
+      }
+
+      return obj
+    } catch {
+      console.log('error')
+    }
+  }
 }
 
 export default DocumentService
