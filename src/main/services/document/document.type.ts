@@ -1,8 +1,6 @@
 interface AddFileProps {
   filename: string
   originalPath: string
-  category: string
-  tags: string
 }
 
 interface Document {
@@ -10,8 +8,6 @@ interface Document {
   filename: string
   path: string
   size: number
-  category?: string
-  tags?: string
   created_at: string
 }
 interface SelectedFiles {

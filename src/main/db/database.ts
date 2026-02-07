@@ -45,8 +45,6 @@ class DatabaseService {
         filename TEXT NOT NULL UNIQUE,
         path TEXT NOT NULL,
         size INTEGER,
-        category TEXT,
-        tags TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )`
     )
@@ -55,8 +53,12 @@ class DatabaseService {
     CREATE TABLE IF NOT EXISTS folders (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
-      color TEXT DEFAULT '#FF6B35',
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      parent_id INTEGER,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+      FOREIGN KEY (parent_id)
+      REFERENCES folders(id)
+      ON DELETE CASCADE
     );
   `)
 

@@ -8,8 +8,6 @@ export default function Import(): React.JSX.Element {
   const [documents, setDocuments] = useState<SelectedFiles[]>([])
   const [files, setFiles] = useState<DocumentType[]>([])
   const [trigger, setTrigger] = useState(0)
-  const [tags, setTags] = useState<string>()
-  const [category, setCategory] = useState<string>()
 
   useEffect(() => {
     async function getDocument(): Promise<void> {
@@ -34,7 +32,7 @@ export default function Import(): React.JSX.Element {
       return
     }
 
-    const result = await window.api.document.importFile(documents, category, tags)
+    const result = await window.api.document.importFile(documents)
 
     console.log(result)
     setDocuments([])
@@ -87,42 +85,6 @@ export default function Import(): React.JSX.Element {
               </div>
             </>
           )}
-
-          <div className="space-y-2">
-            <label htmlFor="tags" className="block text-sm">
-              Tags (optionnel)
-            </label>
-
-            <input
-              id="tags"
-              onChange={(e) => {
-                setTags(e.target.value)
-              }}
-              className="border-2 outline-none transition-all duration-300 border-border-primary focus:border-blue-300 w-full p-2 rounded-md"
-              placeholder="Séparez par des virgules: 2024, important, fiscal"
-              type="text"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label htmlFor="categorie" className="block text-sm">
-              Catégorie (optionnel)
-            </label>
-
-            <select
-              name="pets"
-              id="categorie"
-              onChange={(e) => {
-                setCategory(e.target.value)
-              }}
-              className="w-full border-2 transition-all duration-300 border-border-primary rounded-md p-2.5 
-            mt-1 outline-none focus:border-blue-300"
-            >
-              <option value="">Sélectionner une catégorie</option>
-              <option value="impôt">Impôt</option>
-              <option value="marcher">Marcher</option>
-            </select>
-          </div>
 
           <button
             className={`w-full text-white bg-blue-400 hover:bg-blue-500 py-3 rounded-lg

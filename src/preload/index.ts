@@ -33,12 +33,14 @@ const api = {
 
   //=========================== Folders ============================//
   folder: {
-    getAll: (): Promise<GetFoldersType> => ipcRenderer.invoke('folder:get-all'),
+    getRootFolders: (): Promise<GetFoldersType> => ipcRenderer.invoke('folder:get-rootFolders'),
     get: (id: string): Promise<GetFolderType> => ipcRenderer.invoke('folder:get', id),
+    getSubfolders: (id: string): Promise<GetFoldersType> =>
+      ipcRenderer.invoke('folder:getSubfolders', id),
     getDocuments: (id: string): Promise<GetFolderDocumentsType> =>
       ipcRenderer.invoke('folder:get-document', id),
     create: (name: string): Promise<CreateFolderType> => ipcRenderer.invoke('folder:create', name),
-    delete: (id: string): Promise<DeleteFolderType> => ipcRenderer.invoke('folder:delete', id),
+    delete: (id: number): Promise<DeleteFolderType> => ipcRenderer.invoke('folder:delete', id),
     addDocument: (folderId: string, documentId: string): Promise<AddDocumentType> =>
       ipcRenderer.invoke('folder:add-document', folderId, documentId),
     removeDocument: (folderId: string, documentId: string): Promise<RemoveDocumentType> =>

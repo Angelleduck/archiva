@@ -93,13 +93,11 @@ app.whenReady().then(() => {
     return { success: true, data: documents }
   })
 
-  ipcMain.handle('document:import', async (_event, documents, category, tags) => {
+  ipcMain.handle('document:import', async (_event, documents) => {
     for (const document of documents) {
       documentService.addFile({
         filename: document.filename,
-        originalPath: document.path,
-        category,
-        tags
+        originalPath: document.path
       })
     }
   })
@@ -144,11 +142,14 @@ app.whenReady().then(() => {
     return folderService.createFolder(name)
   })
 
-  ipcMain.handle('folder:get-all', async (): Promise<GetFoldersType> => {
-    return folderService.getFolders()
+  ipcMain.handle('folder:get-rootFolders', async (): Promise<GetFoldersType> => {
+    return folderService.getRootFolders()
   })
   ipcMain.handle('folder:get', async (_event, id: string): Promise<GetFolderType> => {
     return folderService.getFolder(id)
+  })
+  ipcMain.handle('folder:getSubfolders', async (_event, id: string): Promise<GetFoldersType> => {
+    return folderService.getSubfolders(id)
   })
   ipcMain.handle(
     'folder:get-document',
@@ -156,7 +157,7 @@ app.whenReady().then(() => {
       return folderService.getFolderDocuments(id)
     }
   )
-  ipcMain.handle('folder:delete', async (_event, id: string): Promise<DeleteFolderType> => {
+  ipcMain.handle('folder:delete', async (_event, id: number): Promise<DeleteFolderType> => {
     return folderService.deleteFolder(id)
   })
   ipcMain.handle(

@@ -1,12 +1,13 @@
+//later
 interface DocumentWithCount {
   id: string
   name: string
-  color: string
-  document_count: number
 }
 
 interface Folder {
+  id: number
   name: string
+  created_at: string
 }
 interface FolderDocuments {
   id: string
@@ -16,9 +17,7 @@ interface FolderDocuments {
   size: number
 }
 type CreateFolderType = { success: boolean; message?: string }
-type GetFoldersType =
-  | { success: true; data: DocumentWithCount[] }
-  | { success: false; message?: string }
+type GetFoldersType = { success: true; data: Folder[] } | { success: false; message?: string }
 type GetFolderType =
   | { success: true; data: Folder | undefined }
   | { success: false; message?: string }

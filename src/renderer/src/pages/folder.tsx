@@ -1,6 +1,6 @@
 import { DocumentModal } from '@renderer/components/folder/modal/add-document'
 import { formatSize } from '@renderer/helper/utils'
-import { ChevronLeft, File, FolderIcon, Plus, X } from 'lucide-react'
+import { ChevronLeft, File, FolderIcon, Plus, Trash2, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Document } from 'src/main/services/document/document.type'
@@ -11,8 +11,9 @@ import type {
 
 export default function Folder(): React.JSX.Element {
   const [folderDocuments, setFolderDocuments] = useState<FolderDocumentsType[]>([])
-  const [documentsNotInFolder, setDocumentsNotInFolder] = useState<Document[]>([])
   const [folder, setFolder] = useState<FolderType>()
+  const [subfolders, setSubfodlers] = useState<FolderType[]>([])
+  const [documentsNotInFolder, setDocumentsNotInFolder] = useState<Document[]>([])
   const [showModal, setShowModal] = useState(false)
   const [trigger, setTrigger] = useState(0)
   const navigate = useNavigate()
@@ -21,14 +22,17 @@ export default function Folder(): React.JSX.Element {
   useEffect(() => {
     async function getFolderDocuments(id: string | undefined): Promise<void> {
       if (!id) return
-      const [documentResult, folderResult] = await Promise.all([
+      const [documentResult, folderResult, subfolders] = await Promise.all([
         window.api.folder.getDocuments(id),
-        window.api.folder.get(id)
+        window.api.folder.get(id),
+        window.api.folder.getSubfolders(id)
       ])
 
-      if (documentResult.success == true && folderResult.success == true) {
+      if (documentResult.success && folderResult.success && subfolders.success) {
         setFolderDocuments(documentResult.data)
         setFolder(folderResult.data)
+        setSubfodlers(subfolders.data)
+        console.log(subfolders.data)
       }
     }
     getFolderDocuments(id)
@@ -69,6 +73,7 @@ export default function Folder(): React.JSX.Element {
   const handleFilterDocuments = (value): void => {
     setDocumentsNotInFolder(value)
   }
+
   return (
     <>
       {showModal && (
@@ -84,7 +89,7 @@ export default function Folder(): React.JSX.Element {
         <div>
           <div className="flex gap-3 items-center">
             <button
-              onClick={() => navigate('/folders')}
+              onClick={() => navigate(-1)}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
             >
               <ChevronLeft />
@@ -109,13 +114,38 @@ export default function Folder(): React.JSX.Element {
           </div>
         </div>
 
+        <div className="grid grid-cols-4 gap-x-6 gap-y-8">
+          {subfolders.map((doc) => (
+            <div
+              onClick={() => navigate(`/folders/${doc.id}`)}
+              key={doc.id}
+              className="p-5 border border-border-primary rounded-lg bg-white hover:shadow-md cursor-pointer transition-all duration-200 relative"
+            >
+              <Trash2
+                onClick={(e) => {
+                  e.stopPropagation()
+                }}
+                size={20}
+                className="absolute right-6 top-6 text-secondary hover:text-red-400"
+              />
+              <div className="w-11 h-11 bg-blue-100 flex items-center justify-center rounded-md mb-5">
+                <FolderIcon size={20} className="fill-blue-600 stroke-blue-600" />
+              </div>
+              <p className="font-semibold mb-1 text-primary truncate">{doc.name}</p>
+              <p className="text-xs flex gap-1">
+                <span>{new Date(doc.created_at).toLocaleDateString('fr-FR')}</span>
+              </p>
+            </div>
+          ))}
+        </div>
+
         <div
           className="p-5 border border-border-primary rounded-lg bg-white
          transition-all duration-200 relative"
         >
           <h3 className="mb-6">Documents({folderDocuments.length})</h3>
 
-          <div className="space-y-4">
+          <div className="space-y-4 max-h-128 overflow-y-auto">
             {folderDocuments.map((doc, idx) => (
               <div
                 key={idx}

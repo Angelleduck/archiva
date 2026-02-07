@@ -22,22 +22,19 @@ declare global {
     api: {
       document: {
         selectFile: () => Promise<SelectFile>
-        importFile: (
-          documents: Record<string, any>[],
-          category: string | undefined,
-          tags: string | undefined
-        ) => Promise<void>
+        importFile: (documents: Record<string, any>[]) => Promise<void>
         getAll: () => Promise<GetAllType>
         getRecent: () => Promise<GetRecentType>
         open: (path: string) => Promise<OpenDocumentType>
         delete: (id: string) => Promise<string[]>
       }
       folder: {
-        getAll: () => Promise<GetFoldersType>
+        getRootFolders: () => Promise<GetFoldersType>
         get: (id: string) => Promise<GetFolderType>
+        getSubfolders: (id: string) => Promise<GetFoldersType>
         getDocuments: (id: string) => Promise<GetFolderDocumentsType>
         create: (name: string) => Promise<CreateFolderType>
-        delete: (id: string) => Promise<DeleteFolderType>
+        delete: (id: number) => Promise<DeleteFolderType>
         addDocument: (folderId: stringId, documentId: string) => Promise<AddDocumentType>
         removeDocument: (folderId: stringId, documentId: string) => Promise<RemoveDocumentType>
       }

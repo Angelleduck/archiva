@@ -19,7 +19,7 @@ class DocumentService {
 
   addFile(data: AddFileProps): AddFileType {
     try {
-      const { filename, originalPath, category, tags } = data
+      const { filename, originalPath } = data
 
       if (!fs.existsSync(originalPath)) {
         return { success: false }
@@ -29,9 +29,9 @@ class DocumentService {
       const storedPath = path.join(this.dbService.documentsDir, filename)
 
       const stmt = this.dbService.db.prepare(
-        'INSERT INTO documents (filename, path, size, category, tags) VALUES (?, ?, ?, ?, ?)'
+        'INSERT INTO documents (filename, path, size) VALUES (?, ?, ?)'
       )
-      stmt.run(filename, storedPath, fileSize, category, tags)
+      stmt.run(filename, storedPath, fileSize)
 
       fs.copyFileSync(originalPath, storedPath)
 

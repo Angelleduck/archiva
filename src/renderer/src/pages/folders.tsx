@@ -1,11 +1,11 @@
 import { FolderModal } from '@renderer/components/folder/modal/add-folder'
-import { File, FolderIcon, Plus, Trash2 } from 'lucide-react'
+import { FolderIcon, Plus, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { DocumentWithCount } from 'src/main/services/folder/folder.type'
+import { Folder } from 'src/main/services/folder/folder.type'
 
 export default function Folders(): React.JSX.Element {
-  const [folders, setFolders] = useState<DocumentWithCount[]>([])
+  const [folders, setFolders] = useState<Folder[]>([])
   const [showModal, setShowModal] = useState(false)
   const [trigger, setTrigger] = useState(0)
 
@@ -13,7 +13,8 @@ export default function Folders(): React.JSX.Element {
 
   useEffect(() => {
     async function getFolders(): Promise<void> {
-      const result = await window.api.folder.getAll()
+      const result = await window.api.folder.getRootFolders()
+      console.log(result)
       if (result.success) {
         setFolders(result.data)
       }
@@ -29,7 +30,7 @@ export default function Folders(): React.JSX.Element {
     setTrigger((prev) => prev + 1)
   }
 
-  const handleDelete = async (id: string): Promise<void> => {
+  const handleDelete = async (id: number): Promise<void> => {
     await window.api.folder.delete(id)
     setTrigger((prev) => prev + 1)
   }
@@ -52,9 +53,9 @@ export default function Folders(): React.JSX.Element {
         </button>
       </div>
       <div className="grid grid-cols-3 gap-x-6 gap-y-8">
-        {folders.map((el, idx: number) => (
+        {folders.map((doc, idx: number) => (
           <div
-            onClick={() => navigate(`${el.id}`)}
+            onClick={() => navigate(`${doc.id}`)}
             key={idx}
             className="p-5 border border-border-primary rounded-lg bg-white hover:shadow-md
          cursor-pointer transition-all duration-200 relative"
@@ -62,7 +63,7 @@ export default function Folders(): React.JSX.Element {
             <Trash2
               onClick={(e) => {
                 e.stopPropagation()
-                handleDelete(el.id)
+                handleDelete(doc.id)
               }}
               size={20}
               className="absolute right-6 top-6 text-secondary hover:text-red-400"
@@ -70,11 +71,7 @@ export default function Folders(): React.JSX.Element {
             <div className="w-11 h-11 bg-blue-100 flex items-center justify-center rounded-md mb-5">
               <FolderIcon size={20} className="fill-blue-600 stroke-blue-600" />
             </div>
-            <p className="font-semibold mb-2 text-primary">{el.name}</p>
-            <p className="flex gap-2 items-center text-sm">
-              <File size={14} />
-              {el.document_count} document(s)
-            </p>
+            <p className="font-semibold mb-2 text-primary">{doc.name}</p>
           </div>
         ))}
       </div>

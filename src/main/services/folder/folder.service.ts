@@ -3,7 +3,6 @@ import type {
   AddDocumentType,
   CreateFolderType,
   DeleteFolderType,
-  DocumentWithCount,
   Folder,
   FolderDocuments,
   GetFolderDocumentsType,
@@ -32,18 +31,14 @@ class FolderService {
     }
   }
 
-  getFolders(): GetFoldersType {
+  getRootFolders(): GetFoldersType {
     try {
-      const stmt = this.dbService.db.prepare<DocumentWithCount[], DocumentWithCount>(`
+      const stmt = this.dbService.db.prepare<Folder[], Folder>(`
         SELECT
-          f.id,
-          f.name,
-          f.color,
-          COUNT(df.document_id) AS document_count
-        FROM folders AS f
-        LEFT JOIN document_folders AS df
-          ON f.id = df.folder_id
-        GROUP BY f.id;
+          id,
+          name
+        FROM folders
+        WHERE parent_id IS NULL;
       `)
       const rows = stmt.all()
       return { success: true, data: rows }
@@ -56,11 +51,31 @@ class FolderService {
     try {
       const stmt = this.dbService.db.prepare<string, Folder>(`
         SELECT
-          name
+          id,
+          name,
+          created_at
         FROM folders
         WHERE id = ?;
       `)
       const row = stmt.get(id)
+      return { success: true, data: row }
+    } catch {
+      return { success: false }
+    }
+  }
+
+  getSubfolders(id: string): GetFoldersType {
+    try {
+      const stmt = this.dbService.db.prepare<string, Folder>(`
+        SELECT
+          id,
+          name,
+          created_at
+        FROM folders
+        WHERE parent_id = ?;
+        `)
+
+      const row = stmt.all(id)
       return { success: true, data: row }
     } catch {
       return { success: false }
@@ -88,7 +103,7 @@ class FolderService {
     }
   }
 
-  deleteFolder(id: string): DeleteFolderType {
+  deleteFolder(id: number): DeleteFolderType {
     try {
       const stmt = this.dbService.db.prepare(`
         DELETE FROM folders
