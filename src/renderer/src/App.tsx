@@ -3,7 +3,6 @@ import RootLayout from './pages/root'
 import Home from './pages/home'
 import Import from './pages/import'
 import Folders from './pages/folders'
-import Search from './pages/search'
 import Folder from './pages/folder'
 import Document from './pages/document'
 import { Toaster } from 'react-hot-toast'
@@ -32,10 +31,6 @@ const router = createBrowserRouter([
       {
         path: 'folders/:id',
         element: <Folder />
-      },
-      {
-        path: 'search',
-        element: <Search />
       }
     ]
   }

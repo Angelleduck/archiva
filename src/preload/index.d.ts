@@ -26,7 +26,7 @@ declare global {
         getAll: () => Promise<GetAllType>
         getRecent: () => Promise<GetRecentType>
         open: (path: string) => Promise<OpenDocumentType>
-        delete: (id: string) => Promise<string[]>
+        delete: (id: string) => Promise<DeleteType>
       }
       folder: {
         getRootFolders: () => Promise<GetFoldersType>
@@ -34,12 +34,10 @@ declare global {
         getSubfolders: (id: string) => Promise<GetFoldersType>
         getDocuments: (id: string) => Promise<GetFolderDocumentsType>
         create: (name: string) => Promise<CreateFolderType>
+        createSubfolder: (parentId: number, name: string) => Promise<any>
         delete: (id: number) => Promise<DeleteFolderType>
         addDocument: (folderId: stringId, documentId: string) => Promise<AddDocumentType>
         removeDocument: (folderId: stringId, documentId: string) => Promise<RemoveDocumentType>
-      }
-      search: {
-        query: (params: any) => Promise<void>
       }
     }
   }

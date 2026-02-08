@@ -1,5 +1,4 @@
 import { Download, FileText, Folder, House } from 'lucide-react'
-import { Glass } from './svg/glass'
 import { NavLink } from 'react-router-dom'
 
 export function Sidebar(): React.JSX.Element {
@@ -20,10 +19,6 @@ export function Sidebar(): React.JSX.Element {
       <NavItem href="/folders">
         <Folder size={20} className="shrink-0" />
         Dossiers
-      </NavItem>
-      <NavItem href="/search">
-        <Glass className="size-5 shrink-0" />
-        Recherche
       </NavItem>
     </div>
   )

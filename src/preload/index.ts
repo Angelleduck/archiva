@@ -40,17 +40,15 @@ const api = {
     getDocuments: (id: string): Promise<GetFolderDocumentsType> =>
       ipcRenderer.invoke('folder:get-document', id),
     create: (name: string): Promise<CreateFolderType> => ipcRenderer.invoke('folder:create', name),
+    createSubfolder: (parentId: number, name: string): Promise<any> =>
+      ipcRenderer.invoke('folder:create-subfolder', parentId, name),
     delete: (id: number): Promise<DeleteFolderType> => ipcRenderer.invoke('folder:delete', id),
     addDocument: (folderId: string, documentId: string): Promise<AddDocumentType> =>
       ipcRenderer.invoke('folder:add-document', folderId, documentId),
     removeDocument: (folderId: string, documentId: string): Promise<RemoveDocumentType> =>
       ipcRenderer.invoke('folder:remove-document', folderId, documentId)
-  },
-  //=========================== Search ============================//
-
-  search: {
-    query: (params: any) => ipcRenderer.invoke('search:document', params)
   }
+  //=========================== Search ============================//
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

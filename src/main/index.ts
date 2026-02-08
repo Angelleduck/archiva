@@ -4,7 +4,6 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import DocumentService from './services/document/document.service'
 import FolderService from './services/folder/folder.service'
-import SearchService from './services/search.service'
 import fs from 'node:fs'
 import path from 'node:path'
 import type {
@@ -66,7 +65,6 @@ app.whenReady().then(() => {
 
   const documentService = new DocumentService()
   const folderService = new FolderService()
-  const searchService = new SearchService()
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
@@ -141,6 +139,12 @@ app.whenReady().then(() => {
   ipcMain.handle('folder:create', async (_event, name): Promise<CreateFolderType> => {
     return folderService.createFolder(name)
   })
+  ipcMain.handle(
+    'folder:create-subfolder',
+    async (_event, parentId, name): Promise<CreateFolderType> => {
+      return folderService.createSubfolder(parentId, name)
+    }
+  )
 
   ipcMain.handle('folder:get-rootFolders', async (): Promise<GetFoldersType> => {
     return folderService.getRootFolders()
@@ -172,12 +176,6 @@ app.whenReady().then(() => {
       return folderService.removeDocument(folderId, documentId)
     }
   )
-
-  //=========================== Search ============================//
-
-  ipcMain.handle('search:document', async (_event, params) => {
-    return searchService.document(params)
-  })
 
   createWindow()
 

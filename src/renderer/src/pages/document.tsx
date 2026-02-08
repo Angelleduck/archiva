@@ -43,7 +43,7 @@ export default function Document(): React.JSX.Element {
     }
   }
 
-  // later check if it's better tto use optimistic ui by filtering item than refecthing
+  // later check if it's better to use optimistic ui by filtering item than refecthing
   const handleDeleteFile = async (id: string): Promise<void> => {
     await window.api.document.delete(id)
     setTrigger((prev) => prev + 1)

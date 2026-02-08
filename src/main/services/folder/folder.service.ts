@@ -31,6 +31,19 @@ class FolderService {
     }
   }
 
+  createSubfolder(parentId: number, name: string) {
+    try {
+      const stmt = this.dbService.db.prepare(`
+        INSERT INTO folders(parent_id,name)
+        VALUES(?,?)
+      `)
+      stmt.run(parentId, name)
+      return { success: true }
+    } catch {
+      return { success: false }
+    }
+  }
+
   getRootFolders(): GetFoldersType {
     try {
       const stmt = this.dbService.db.prepare<Folder[], Folder>(`
