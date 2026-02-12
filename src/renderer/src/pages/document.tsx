@@ -1,3 +1,4 @@
+import { DeleteModal } from '@renderer/components/folder/modal/delete'
 import { Glass } from '@renderer/components/svg/glass'
 import { debounce, formatSize } from '@renderer/helper/utils'
 import { File, Trash2 } from 'lucide-react'
@@ -9,6 +10,8 @@ export default function Document(): React.JSX.Element {
   const [documents, setDocuments] = useState<DocumentType[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [trigger, setTrigger] = useState(0)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [documentObject, setDocumentObject] = useState({ name: '', id: 0 })
 
   useEffect(() => {
     async function getAlldocument(): Promise<void> {
@@ -44,50 +47,66 @@ export default function Document(): React.JSX.Element {
   }
 
   // later check if it's better to use optimistic ui by filtering item than refecthing
-  const handleDeleteFile = async (id: string): Promise<void> => {
+  const handleDeleteFile = async (id: number): Promise<void> => {
     await window.api.document.delete(id)
     setTrigger((prev) => prev + 1)
   }
 
-  return (
-    <div>
-      <div className="px-3 border-2 border-border-primary rounded-lg bg-white relative flex items-center gap-3 focus-within:border-blue-300 mb-2">
-        <Glass className="w-5 h-5 text-gray-400" />
-        <input
-          onChange={(e) => debouncedSetSearchTerm(e.target.value.toLowerCase())}
-          type="text"
-          placeholder="Rechercher par nom"
-          className="w-full py-3"
-        />
-      </div>
+  const handleCloseDeleteModal = (): void => {
+    setShowDeleteModal(false)
+  }
 
-      <div className="grid grid-cols-4 gap-x-6 gap-y-8">
-        {filteredDocuments.map((doc) => (
-          <div
-            onClick={() => handleOpenDocument(doc.path)}
-            key={doc.id}
-            className="p-5 border border-border-primary rounded-lg bg-white hover:shadow-md cursor-pointer transition-all duration-200 relative"
-          >
-            <Trash2
-              onClick={(e) => {
-                e.stopPropagation()
-                handleDeleteFile(doc.id)
-              }}
-              size={20}
-              className="absolute right-6 top-6 text-secondary hover:text-red-400"
-            />
-            <div className="w-11 h-11 bg-blue-100 flex items-center justify-center rounded-md mb-5">
-              <File size={20} className="fill-blue-600 stroke-blue-600" />
+  return (
+    <>
+      {showDeleteModal && (
+        <DeleteModal
+          onCloseModal={handleCloseDeleteModal}
+          name={documentObject.name}
+          id={documentObject.id}
+          type="document"
+          onDelete={handleDeleteFile}
+        />
+      )}
+      <div>
+        <div className="px-3 border-2 border-border-primary rounded-lg bg-white relative flex items-center gap-3 focus-within:border-blue-300 mb-2">
+          <Glass className="w-5 h-5 text-gray-400" />
+          <input
+            onChange={(e) => debouncedSetSearchTerm(e.target.value.toLowerCase())}
+            type="text"
+            placeholder="Rechercher par nom"
+            className="w-full py-3"
+          />
+        </div>
+
+        <div className="grid grid-cols-4 gap-x-6 gap-y-8">
+          {filteredDocuments.map((doc) => (
+            <div
+              onClick={() => handleOpenDocument(doc.path)}
+              key={doc.id}
+              className="p-5 border border-border-primary rounded-lg bg-white hover:shadow-md cursor-pointer transition-all duration-200 relative"
+            >
+              <Trash2
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setDocumentObject({ id: doc.id, name: doc.filename })
+                  setShowDeleteModal(true)
+                }}
+                size={20}
+                className="absolute right-6 top-6 text-secondary hover:text-red-400"
+              />
+              <div className="w-11 h-11 bg-blue-100 flex items-center justify-center rounded-md mb-5">
+                <File size={20} className="fill-blue-600 stroke-blue-600" />
+              </div>
+              <p className="font-semibold mb-1 text-primary truncate">{doc.filename}</p>
+              <p className="text-xs flex gap-1">
+                <span>{formatSize(doc.size)}</span>
+                <span>•</span>
+                <span>{new Date(doc.created_at).toLocaleDateString('fr-FR')}</span>
+              </p>
             </div>
-            <p className="font-semibold mb-1 text-primary truncate">{doc.filename}</p>
-            <p className="text-xs flex gap-1">
-              <span>{formatSize(doc.size)}</span>
-              <span>•</span>
-              <span>{new Date(doc.created_at).toLocaleDateString('fr-FR')}</span>
-            </p>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   )
 }

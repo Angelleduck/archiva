@@ -126,7 +126,7 @@ app.whenReady().then(() => {
     return documentService.getRecent()
   })
 
-  ipcMain.handle('document:delete-file', async (_event, id: string): Promise<DeleteType> => {
+  ipcMain.handle('document:delete-file', async (_event, id: number): Promise<DeleteType> => {
     return documentService.delete(id)
   })
 

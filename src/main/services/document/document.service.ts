@@ -65,7 +65,7 @@ class DocumentService {
     }
   }
 
-  delete(id: string): DeleteType {
+  delete(id: number): DeleteType {
     try {
       // later  verify path
 

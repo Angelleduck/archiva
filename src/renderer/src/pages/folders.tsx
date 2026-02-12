@@ -1,4 +1,5 @@
 import { FolderModal } from '@renderer/components/folder/modal/add-folder'
+import { DeleteModal } from '@renderer/components/folder/modal/delete'
 import { FolderIcon, Plus, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -8,6 +9,8 @@ export default function Folders(): React.JSX.Element {
   const [folders, setFolders] = useState<Folder[]>([])
   const [showModal, setShowModal] = useState(false)
   const [trigger, setTrigger] = useState(0)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [folderObject, setfolderObject] = useState({ name: '', id: 0 })
 
   const navigate = useNavigate()
 
@@ -34,8 +37,20 @@ export default function Folders(): React.JSX.Element {
     await window.api.folder.delete(id)
     setTrigger((prev) => prev + 1)
   }
+  const handleCloseDeleteModal = (): void => {
+    setShowDeleteModal(false)
+  }
   return (
     <>
+      {showDeleteModal && (
+        <DeleteModal
+          onCloseModal={handleCloseDeleteModal}
+          name={folderObject.name}
+          onDelete={handleDelete}
+          type="dossier"
+          id={folderObject.id}
+        />
+      )}
       {showModal && <FolderModal onCloseModal={handleCloseModal} onTrigger={handleTrigger} />}
       <div className="flex items-center justify-between mb-8">
         <div className="space-y-1">
@@ -53,9 +68,9 @@ export default function Folders(): React.JSX.Element {
         </button>
       </div>
       <div className="grid grid-cols-3 gap-x-6 gap-y-8">
-        {folders.map((doc, idx: number) => (
+        {folders.map((folder, idx: number) => (
           <div
-            onClick={() => navigate(`${doc.id}`)}
+            onClick={() => navigate(`${folder.id}`)}
             key={idx}
             className="p-5 border border-border-primary rounded-lg bg-white hover:shadow-md
          cursor-pointer transition-all duration-200 relative"
@@ -63,7 +78,8 @@ export default function Folders(): React.JSX.Element {
             <Trash2
               onClick={(e) => {
                 e.stopPropagation()
-                handleDelete(doc.id)
+                setfolderObject({ id: folder.id, name: folder.name })
+                setShowDeleteModal(true)
               }}
               size={20}
               className="absolute right-6 top-6 text-secondary hover:text-red-400"
@@ -71,7 +87,7 @@ export default function Folders(): React.JSX.Element {
             <div className="w-11 h-11 bg-blue-100 flex items-center justify-center rounded-md mb-5">
               <FolderIcon size={20} className="fill-blue-600 stroke-blue-600" />
             </div>
-            <p className="font-semibold mb-2 text-primary">{doc.name}</p>
+            <p className="font-semibold mb-2 text-primary">{folder.name}</p>
           </div>
         ))}
       </div>

@@ -27,7 +27,7 @@ const api = {
     getRecent: (): Promise<GetRecentType> => ipcRenderer.invoke('document:get-recentFiles'),
     open: (filePath: string): Promise<OpenDocumentType> =>
       ipcRenderer.invoke('document:open', filePath),
-    delete: (id: string): Promise<DeleteType> => ipcRenderer.invoke('document:delete-file', id),
+    delete: (id: number): Promise<DeleteType> => ipcRenderer.invoke('document:delete-file', id),
     stats: (): Promise<any> => ipcRenderer.invoke('document:get-stats')
   },
 

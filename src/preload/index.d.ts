@@ -26,7 +26,7 @@ declare global {
         getAll: () => Promise<GetAllType>
         getRecent: () => Promise<GetRecentType>
         open: (path: string) => Promise<OpenDocumentType>
-        delete: (id: string) => Promise<DeleteType>
+        delete: (id: number) => Promise<DeleteType>
       }
       folder: {
         getRootFolders: () => Promise<GetFoldersType>

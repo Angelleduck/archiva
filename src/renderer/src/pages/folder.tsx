@@ -13,6 +13,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 export default function Folder(): React.JSX.Element {
   const [showFolderModal, setShowFolderModal] = useState(false)
   const [showDocumentModal, setShowDocumentModal] = useState(false)
+
   const navigate = useNavigate()
   const { id } = useParams()
   const { folderDocuments, folder, subfolders, refetch } = useFolderData(id)

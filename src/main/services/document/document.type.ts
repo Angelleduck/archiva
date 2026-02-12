@@ -4,7 +4,7 @@ interface AddFileProps {
 }
 
 interface Document {
-  id: string
+  id: number
   filename: string
   path: string
   size: number

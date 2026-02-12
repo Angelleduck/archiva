@@ -9,7 +9,7 @@ export function StatsCard(): React.JSX.Element {
     storageUsed: 0
   })
   useEffect(() => {
-    async function getStats() {
+    async function getStats(): Promise<void> {
       const data = await window.api.document.stats()
       setStats({
         totalDocuments: data.total_file,
@@ -35,6 +35,7 @@ interface CardProps {
   Icon: LucideIcon
   color: 'purple' | 'blue' | 'green'
   label: string
+  total: number
 }
 
 function Card({ Icon, color, label, total }: CardProps): React.JSX.Element {
