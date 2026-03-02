@@ -2,6 +2,8 @@ import { formatSize } from '@renderer/helper/utils'
 import { File, X } from 'lucide-react'
 
 import type { FolderDocuments as FolderDocumentsType } from 'src/main/services/folder/folder.type'
+import { Glass } from '../svg/glass'
+import { useFolderSearch } from '@renderer/hooks/useFolderSearch'
 
 interface DocumentSectionProps {
   folderDocuments: FolderDocumentsType[]
@@ -16,15 +18,30 @@ export function DocumentSection({
   handleRemoveDocument,
   folderId
 }: DocumentSectionProps): React.JSX.Element {
+  const { filteredSubfolders, debouncedSetSearchTerm } = useFolderSearch(folderDocuments)
   return (
     <div
       className="p-5 border border-border-primary rounded-lg bg-white
          transition-all duration-200 relative"
     >
-      <h3 className="mb-6">Documents({folderDocuments.length})</h3>
+      <h3 className="mb-4">Documents({folderDocuments.length})</h3>
+
+      <div
+        className="px-3 border-border-primary rounded-lg transition-all
+      bg-white relative flex items-center gap-3 focus-within:border-blue-300
+        border-2 mb-4"
+      >
+        <Glass className="w-5 h-5 text-gray-400" />
+        <input
+          onChange={(e) => debouncedSetSearchTerm(e.target.value.toLowerCase())}
+          type="text"
+          placeholder="Rechercher par nom"
+          className="w-full py-3"
+        />
+      </div>
 
       <div className="space-y-4 max-h-128 overflow-y-auto">
-        {folderDocuments.map((doc, idx) => (
+        {filteredSubfolders.map((doc, idx) => (
           <div
             key={idx}
             onClick={() => {

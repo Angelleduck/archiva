@@ -17,10 +17,10 @@ export function SubfolderModal({
 
     const formData = new FormData(e.currentTarget)
     const folderName = formData.get('name') as string
-    if (folderName.length < 3) {
+    if (folderName.length < 2) {
       toast.error('Nom trop court')
       return
-    } else if (folderName.length > 15) {
+    } else if (folderName.length > 100) {
       toast.error('Nom Trop long')
       return
     }

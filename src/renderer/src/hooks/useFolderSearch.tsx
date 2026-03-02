@@ -1,10 +1,17 @@
 import { debounce } from '@renderer/helper/utils'
 import { useCallback, useMemo, useState } from 'react'
-import type { Folder as FolderType } from 'src/main/services/folder/folder.type'
+import type {
+  Folder as FolderType,
+  GetFolderDocumentsType
+} from 'src/main/services/folder/folder.type'
 
 interface useFolderSearchType {
   filteredSubfolders: FolderType[]
   debouncedSetSearchTerm: (value: string) => void
+}
+
+interface useFolderProps {
+  data: FolderType[] | GetFolderDocumentsType[]
 }
 
 export function useFolderSearch(subfolders: FolderType[]): useFolderSearchType {
@@ -16,7 +23,14 @@ export function useFolderSearch(subfolders: FolderType[]): useFolderSearchType {
       return subfolders
     }
 
-    return subfolders.filter((doc) => doc.name.toLowerCase().includes(searchTerm))
+    // return subfolders.filter((doc) => doc.name.toLowerCase().includes(searchTerm))
+    return subfolders.filter((doc) => {
+      if (doc.name) {
+        return doc.name.toLowerCase().includes(searchTerm)
+      } else {
+        return doc.filename.toLowerCase().includes(searchTerm)
+      }
+    })
   }, [subfolders, searchTerm])
 
   // Debounce with useCallback
