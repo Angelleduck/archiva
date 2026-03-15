@@ -2,7 +2,9 @@ import DatabaseService from '../../db/database'
 import type {
   AddDocumentType,
   CreateFolderType,
+  CreateSubfolderType,
   DeleteFolderType,
+  editFolderTitleType,
   Folder,
   FolderDocuments,
   GetFolderDocumentsType,
@@ -31,7 +33,7 @@ class FolderService {
     }
   }
 
-  createSubfolder(parentId: number, name: string) {
+  createSubfolder(parentId: number, name: string): CreateSubfolderType {
     try {
       const stmt = this.dbService.db.prepare(`
         INSERT INTO folders(parent_id,name)
@@ -123,6 +125,19 @@ class FolderService {
         WHERE id = ?
       `)
       stmt.run(id)
+      return { success: true }
+    } catch {
+      return { success: false }
+    }
+  }
+  editFolderTitle(id: number, title: string): editFolderTitleType {
+    try {
+      const stmt = this.dbService.db.prepare(`
+        UPDATE folders
+        SET name = ?
+        WHERE id = ? ;
+      `)
+      stmt.run(title, id)
       return { success: true }
     } catch {
       return { success: false }

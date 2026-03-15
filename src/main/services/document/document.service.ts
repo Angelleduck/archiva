@@ -7,7 +7,8 @@ import type {
   DeleteType,
   Document,
   GetAllType,
-  GetRecentType
+  GetRecentType,
+  GetStatsType
 } from './document.type'
 
 class DocumentService {
@@ -93,7 +94,7 @@ class DocumentService {
     }
   }
 
-  getStats(): void {
+  getStats(): GetStatsType {
     try {
       const stmtFile = this.dbService.db.prepare(`
         SELECT count(*) as total_file FROM documents;
@@ -108,15 +109,15 @@ class DocumentService {
       const data_folder = stmtFolder.get() as { total_folder: number }
       const data_size = stmtSize.get() as { total_size: number }
 
-      const obj = {
+      const data = {
         total_file: data_file.total_file,
         total_folder: data_folder.total_folder,
         total_size: data_size.total_size
       }
 
-      return obj
+      return { success: true, data }
     } catch {
-      console.log('error')
+      return { success: false }
     }
   }
 }

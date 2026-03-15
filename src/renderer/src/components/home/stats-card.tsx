@@ -10,12 +10,15 @@ export function StatsCard(): React.JSX.Element {
   })
   useEffect(() => {
     async function getStats(): Promise<void> {
-      const data = await window.api.document.stats()
-      setStats({
-        totalDocuments: data.total_file,
-        totalFolders: data.total_folder,
-        storageUsed: data.total_size
-      })
+      const res = await window.api.document.stats()
+
+      if (res.success) {
+        setStats({
+          totalDocuments: res.data.total_file,
+          totalFolders: res.data.total_folder,
+          storageUsed: res.data.total_size
+        })
+      }
     }
     getStats()
   }, [])

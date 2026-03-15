@@ -44,10 +44,7 @@ export default function Folder(): React.JSX.Element {
   const handleFilterDocuments = (value): void => {
     setDocumentsNotInFolder(value)
   }
-  const handleDeleteFolder = async (id: number): Promise<void> => {
-    await window.api.folder.delete(id)
-    handleTrigger()
-  }
+
   const handleSetShowFolderModal = (): void => {
     setShowFolderModal(true)
   }
@@ -70,8 +67,8 @@ export default function Folder(): React.JSX.Element {
           onTrigger={handleTrigger}
         />
       )}
-      <div className="space-y-4">
-        <div>
+      <div>
+        <div className="mb-4">
           <div className="flex gap-3 items-center">
             <button
               onClick={() => navigate(-1)}
@@ -99,7 +96,7 @@ export default function Folder(): React.JSX.Element {
           </div>
         </div>
 
-        <div>
+        <div className="mb-4">
           <div className="px-3 border-2 border-border-primary rounded-lg bg-white relative flex items-center gap-3 focus-within:border-blue-300 mb-2">
             <Glass className="w-5 h-5 text-gray-400" />
             <input
@@ -113,8 +110,8 @@ export default function Folder(): React.JSX.Element {
 
         <Subfolders
           subfolders={filteredSubfolders}
-          handleDeleteFolder={handleDeleteFolder}
           handleSetShowFolderModal={handleSetShowFolderModal}
+          handleTrigger={handleTrigger}
         />
 
         <DocumentSection

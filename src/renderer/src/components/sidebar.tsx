@@ -32,7 +32,7 @@ interface NavItemProps {
 function NavItem({ children, href }: NavItemProps): React.JSX.Element {
   return (
     <NavLink
-      className="flex items-center gap-3 text-secondary rounded-md px-4 py-1.5 
+      className="flex items-center gap-3 text-gray-secondary rounded-md px-4 py-1.5 
       hover:bg-gray-100 hover:text-black hover:[&>svg]:text-blue-400"
       to={href}
     >

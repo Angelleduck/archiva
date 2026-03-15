@@ -10,17 +10,20 @@ import type {
   DeleteType,
   GetAllType,
   GetRecentType,
+  GetStatsType,
+  ImportFileType,
   OpenDocumentType,
   SelectFile
 } from './services/document/document.type'
-import {
+import type {
   CreateFolderType,
   DeleteFolderType,
   GetFolderDocumentsType,
   GetFoldersType,
   GetFolderType,
   AddDocumentType,
-  RemoveDocumentType
+  RemoveDocumentType,
+  CreateSubfolderType
 } from './services/folder/folder.type'
 
 function createWindow(): void {
@@ -91,7 +94,7 @@ app.whenReady().then(() => {
     return { success: true, data: documents }
   })
 
-  ipcMain.handle('document:import', async (_event, documents) => {
+  ipcMain.handle('document:import', async (_event, documents: ImportFileType[]) => {
     for (const document of documents) {
       documentService.addFile({
         filename: document.filename,
@@ -130,7 +133,7 @@ app.whenReady().then(() => {
     return documentService.delete(id)
   })
 
-  ipcMain.handle('document:get-stats', async () => {
+  ipcMain.handle('document:get-stats', async (): Promise<GetStatsType> => {
     return documentService.getStats()
   })
 
@@ -141,7 +144,7 @@ app.whenReady().then(() => {
   })
   ipcMain.handle(
     'folder:create-subfolder',
-    async (_event, parentId, name): Promise<CreateFolderType> => {
+    async (_event, parentId, name): Promise<CreateSubfolderType> => {
       return folderService.createSubfolder(parentId, name)
     }
   )
@@ -176,6 +179,10 @@ app.whenReady().then(() => {
       return folderService.removeDocument(folderId, documentId)
     }
   )
+
+  ipcMain.handle('folder:edit-title', async (_event, folderId: number, title: string) => {
+    return folderService.editFolderTitle(folderId, title)
+  })
 
   createWindow()
 

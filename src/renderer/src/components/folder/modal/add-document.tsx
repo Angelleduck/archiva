@@ -1,14 +1,14 @@
 import { Glass } from '@renderer/components/svg/glass'
 import { debounce } from '@renderer/helper/utils'
 import { FolderIcon, Plus } from 'lucide-react'
-import { useMemo } from 'react'
-import { Document } from 'src/main/services/document/document.type'
+import { memo, useCallback, useMemo } from 'react'
+import type { Document as DocumentType } from 'src/main/services/document/document.type'
 
 interface DocumentModalProps {
   onCloseModal: () => void
   onTrigger: () => void
   onFilterDocuments: (value) => void
-  documents: Document[]
+  documents: DocumentType[]
   folderId: string | undefined
 }
 
@@ -19,11 +19,14 @@ export function DocumentModal({
   documents,
   folderId
 }: DocumentModalProps): React.JSX.Element {
-  const handleAdddocument = async (documentId: string): Promise<void> => {
-    await window.api.folder.addDocument(folderId, documentId)
-    onTrigger()
-    onCloseModal()
-  }
+  const handleAdddocument = useCallback(
+    async (documentId: number): Promise<void> => {
+      await window.api.folder.addDocument(folderId, documentId)
+      onTrigger()
+      onCloseModal()
+    },
+    [folderId, onTrigger, onCloseModal]
+  )
 
   const handleSearch = (value: string): void => {
     const data = documents.filter((el) => el.filename.toLowerCase().includes(value))
@@ -32,10 +35,11 @@ export function DocumentModal({
 
   // eslint-disable-next-line react-hooks/preserve-manual-memoization, react-hooks/exhaustive-deps
   const debouncedHandleSearch = useMemo(() => debounce(handleSearch, 600), [])
+
   return (
     <div className="inset-0 fixed bg-black/50 z-10 flex justify-center items-center">
       <div className="basis-2xl bg-white p-6 rounded-lg">
-        <h3 className="font-bold text-xl mb-2">Ajouter un document</h3>
+        <h3 className="font-bold text-xl mb-2">Ajouter un document llll</h3>
 
         <div
           className="px-3 border-2 border-border-primary rounded-lg bg-white relative 
@@ -52,33 +56,11 @@ export function DocumentModal({
 
         <div className="mb-4 space-y-2 max-h-100 overflow-y-auto">
           {documents.length == 0 ? (
-            <p className="text-center text-secondary my-12">
+            <p className="text-center text-gray-secondary my-12">
               Tous vos documents sont déjà dans ce dossier
             </p>
           ) : (
-            documents.map((doc, idx) => (
-              <div
-                onClick={() => handleAdddocument(doc.id)}
-                key={idx}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg 
-              hover:bg-gray-100 transition-colors cursor-pointer"
-              >
-                <div className="flex gap-2 w-full">
-                  <div className="w-10 h-10 bg-blue-100 flex items-center justify-center rounded-md gap-2">
-                    <FolderIcon size={20} className="fill-blue-600 stroke-blue-600 shrink-0" />
-                  </div>
-                  <div className="flex justify-between items-center w-full">
-                    <div className="flex flex-col">
-                      <p className="text-sm font-medium">{doc.filename}</p>
-                      <p className="text-xs">
-                        {new Date(doc.created_at).toLocaleDateString('fr-FR')}
-                      </p>
-                    </div>
-                    <Plus className="text-blue-300" />
-                  </div>
-                </div>
-              </div>
-            ))
+            documents.map((doc) => <Document key={doc.id} doc={doc} onAdd={handleAdddocument} />)
           )}
         </div>
 
@@ -94,3 +76,31 @@ export function DocumentModal({
     </div>
   )
 }
+
+type Props = {
+  doc: DocumentType
+  onAdd: (id: number) => void
+}
+
+const Document = memo(function Document({ doc, onAdd }: Props) {
+  return (
+    <div
+      onClick={() => onAdd(doc.id)}
+      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg
+      hover:bg-gray-100 transition-colors cursor-pointer"
+    >
+      <div className="flex gap-2 w-full">
+        <div className="w-10 h-10 bg-blue-100 flex items-center justify-center rounded-md gap-2">
+          <FolderIcon size={20} className="fill-blue-600 stroke-blue-600 shrink-0" />
+        </div>
+        <div className="flex justify-between items-center w-full">
+          <div className="flex flex-col">
+            <p className="text-sm font-medium">{doc.filename}</p>
+            {/* <p className="text-xs">{new Date(doc.created_at).toLocaleDateString('fr-FR')}</p> */}
+          </div>
+          <Plus className="text-blue-300" />
+        </div>
+      </div>
+    </div>
+  )
+})

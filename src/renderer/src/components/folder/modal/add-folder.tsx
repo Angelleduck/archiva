@@ -29,7 +29,7 @@ export function FolderModal({ onCloseModal, onTrigger }: FolderModalProps): Reac
         <h3 className="font-bold text-xl mb-2">Nouveau dossier</h3>
 
         <div className="mb-4 space-y-2">
-          <label className="block text-sm text-primary">Nom du dossier</label>
+          <label className="block text-sm text-black-primary">Nom du dossier</label>
           <input
             id="name"
             name="name"

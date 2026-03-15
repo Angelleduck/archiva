@@ -3,12 +3,15 @@ import type {
   DeleteType,
   GetAllType,
   GetRecentType,
+  GetStatsType,
+  ImportFileType,
   OpenDocumentType,
   SelectFile
 } from '../main/services/document/document.type'
 import type {
   AddDocumentType,
   CreateFolderType,
+  CreateSubfolderType,
   DeleteFolderType,
   GetFolderDocumentsType,
   GetFoldersType,
@@ -21,14 +24,14 @@ const api = {
   //=========================== Documents ============================//
   document: {
     selectFile: (): Promise<SelectFile> => ipcRenderer.invoke('document:select-files'),
-    importFile: (documents: Record<string, any>[], category: string, tags: string) =>
+    importFile: (documents: ImportFileType[], category: string, tags: string) =>
       ipcRenderer.invoke('document:import', documents, category, tags),
     getAll: (): Promise<GetAllType> => ipcRenderer.invoke('document:get-all'),
     getRecent: (): Promise<GetRecentType> => ipcRenderer.invoke('document:get-recentFiles'),
     open: (filePath: string): Promise<OpenDocumentType> =>
       ipcRenderer.invoke('document:open', filePath),
     delete: (id: number): Promise<DeleteType> => ipcRenderer.invoke('document:delete-file', id),
-    stats: (): Promise<any> => ipcRenderer.invoke('document:get-stats')
+    stats: (): Promise<GetStatsType> => ipcRenderer.invoke('document:get-stats')
   },
 
   //=========================== Folders ============================//
@@ -39,8 +42,10 @@ const api = {
       ipcRenderer.invoke('folder:getSubfolders', id),
     getDocuments: (id: string): Promise<GetFolderDocumentsType> =>
       ipcRenderer.invoke('folder:get-document', id),
+    editFolderTitle: (id: number, title: string) =>
+      ipcRenderer.invoke('folder:edit-title', id, title),
     create: (name: string): Promise<CreateFolderType> => ipcRenderer.invoke('folder:create', name),
-    createSubfolder: (parentId: number, name: string): Promise<any> =>
+    createSubfolder: (parentId: number, name: string): Promise<CreateSubfolderType> =>
       ipcRenderer.invoke('folder:create-subfolder', parentId, name),
     delete: (id: number): Promise<DeleteFolderType> => ipcRenderer.invoke('folder:delete', id),
     addDocument: (folderId: string, documentId: string): Promise<AddDocumentType> =>
@@ -48,7 +53,6 @@ const api = {
     removeDocument: (folderId: string, documentId: string): Promise<RemoveDocumentType> =>
       ipcRenderer.invoke('folder:remove-document', folderId, documentId)
   }
-  //=========================== Search ============================//
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

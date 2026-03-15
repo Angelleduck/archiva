@@ -1,26 +1,26 @@
 import { debounce } from '@renderer/helper/utils'
 import { useCallback, useMemo, useState } from 'react'
-import type { Folder as FolderType } from 'src/main/services/folder/folder.type'
+import type { FolderDocuments } from 'src/main/services/folder/folder.type'
 
-interface useFolderSearchType {
-  filteredSubfolders: FolderType[]
+interface useDocumentSearchType {
+  filteredDocuments: FolderDocuments[]
   debouncedSetSearchTerm: (value: string) => void
 }
 
-export function useFolderSearch(subfolders: FolderType[]): useFolderSearchType {
+export function useDoucmentSearch(folderDocuments: FolderDocuments[]): useDocumentSearchType {
   const [searchTerm, setSearchTerm] = useState('')
 
   // Memoize filtering for performance with large datasets
-  const filteredSubfolders = useMemo(() => {
+  const filteredDocuments = useMemo(() => {
     if (searchTerm.length < 2) {
-      return subfolders
+      return folderDocuments
     }
 
     // return subfolders.filter((doc) => doc.name.toLowerCase().includes(searchTerm))
-    return subfolders.filter((doc) => {
-      return doc.name.toLowerCase().includes(searchTerm)
+    return folderDocuments.filter((doc) => {
+      return doc.filename.toLowerCase().includes(searchTerm)
     })
-  }, [subfolders, searchTerm])
+  }, [folderDocuments, searchTerm])
 
   // Debounce with useCallback
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -29,5 +29,5 @@ export function useFolderSearch(subfolders: FolderType[]): useFolderSearchType {
     []
   )
 
-  return { filteredSubfolders, debouncedSetSearchTerm }
+  return { filteredDocuments, debouncedSetSearchTerm }
 }

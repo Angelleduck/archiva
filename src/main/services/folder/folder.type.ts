@@ -1,4 +1,3 @@
-//later
 interface DocumentWithCount {
   id: string
   name: string
@@ -17,6 +16,7 @@ interface FolderDocuments {
   size: number
 }
 type CreateFolderType = { success: boolean; message?: string }
+type CreateSubfolderType = { success: boolean }
 type GetFoldersType = { success: true; data: Folder[] } | { success: false; message?: string }
 type GetFolderType =
   | { success: true; data: Folder | undefined }
@@ -30,6 +30,7 @@ type DeleteFolderType = { success: boolean; message?: string }
 
 type AddDocumentType = { success: boolean; message?: string }
 type RemoveDocumentType = { success: boolean; message?: string }
+type editFolderTitleType = { success: boolean; message?: string }
 export type {
   CreateFolderType,
   GetFoldersType,
@@ -40,5 +41,7 @@ export type {
   GetFolderDocumentsType,
   DeleteFolderType,
   AddDocumentType,
-  RemoveDocumentType
+  RemoveDocumentType,
+  CreateSubfolderType,
+  editFolderTitleType
 }

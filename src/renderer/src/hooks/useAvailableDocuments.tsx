@@ -13,6 +13,7 @@ export function useAvailableDocuments(
   const [documentsNotInFolder, setDocumentsNotInFolder] = useState<Document[]>([])
 
   useEffect(() => {
+    console.log('check fetcheee')
     async function getAlldocument(): Promise<void> {
       const allDocuments = await window.api.document.getAll()
 

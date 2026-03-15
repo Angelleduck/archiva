@@ -3,7 +3,7 @@ import { File, X } from 'lucide-react'
 
 import type { FolderDocuments as FolderDocumentsType } from 'src/main/services/folder/folder.type'
 import { Glass } from '../svg/glass'
-import { useFolderSearch } from '@renderer/hooks/useFolderSearch'
+import { useDoucmentSearch } from '@renderer/hooks/useDocumentSearch'
 
 interface DocumentSectionProps {
   folderDocuments: FolderDocumentsType[]
@@ -18,7 +18,7 @@ export function DocumentSection({
   handleRemoveDocument,
   folderId
 }: DocumentSectionProps): React.JSX.Element {
-  const { filteredSubfolders, debouncedSetSearchTerm } = useFolderSearch(folderDocuments)
+  const { filteredDocuments, debouncedSetSearchTerm } = useDoucmentSearch(folderDocuments)
   return (
     <div
       className="p-5 border border-border-primary rounded-lg bg-white
@@ -41,7 +41,7 @@ export function DocumentSection({
       </div>
 
       <div className="space-y-4 max-h-128 overflow-y-auto">
-        {filteredSubfolders.map((doc, idx) => (
+        {filteredDocuments.map((doc, idx) => (
           <div
             key={idx}
             onClick={() => {
@@ -68,7 +68,7 @@ export function DocumentSection({
                     e.stopPropagation()
                     handleRemoveDocument(folderId, doc.id)
                   }}
-                  className="text-secondary hover:text-red-400"
+                  className="text-gray-secondary hover:text-red-400"
                 />
               </div>
             </div>

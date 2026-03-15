@@ -32,9 +32,8 @@ export default function Import(): React.JSX.Element {
       return
     }
 
-    const result = await window.api.document.importFile(documents)
+    await window.api.document.importFile(documents)
 
-    console.log(result)
     setDocuments([])
     setTrigger((prev) => prev + 1)
   }
@@ -48,7 +47,7 @@ export default function Import(): React.JSX.Element {
     }
   }
 
-  const deleteFile = async (id: string): Promise<void> => {
+  const deleteFile = async (id: number): Promise<void> => {
     await window.api.document.delete(id)
     setTrigger((prev) => prev + 1)
   }
@@ -70,7 +69,9 @@ export default function Import(): React.JSX.Element {
 
           {documents.length > 0 && (
             <>
-              <h3 className="text-secondary mb-1">{documents.length} fichier(s) sélectionné(s):</h3>
+              <h3 className="text-gray-secondary mb-1">
+                {documents.length} fichier(s) sélectionné(s):
+              </h3>
 
               <div className="space-y-2">
                 {documents.map((doc, idx) => (
@@ -110,11 +111,11 @@ export default function Import(): React.JSX.Element {
                       onClick={() => {
                         handleOpenDocument(doc.path)
                       }}
-                      className="font-semibold text-primary cursor-pointer hover:text-blue-300 leading-tight"
+                      className="font-semibold text-black-primary cursor-pointer hover:text-blue-300 leading-tight"
                     >
                       {doc.filename}
                     </button>
-                    <div className="text-sm text-secondary">
+                    <div className="text-sm text-gray-secondary">
                       <span>{formatSize(doc.size)}</span>
                     </div>
                   </div>

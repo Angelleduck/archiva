@@ -1,17 +1,18 @@
+import Loader from '@renderer/components/document/loader'
 import { DeleteModal } from '@renderer/components/folder/modal/delete'
 import { Glass } from '@renderer/components/svg/glass'
 import { debounce, formatSize } from '@renderer/helper/utils'
 import { File, Trash2 } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import type { Document as DocumentType } from 'src/main/services/document/document.type'
 
 export default function Document(): React.JSX.Element {
   const [documents, setDocuments] = useState<DocumentType[]>([])
   const [searchTerm, setSearchTerm] = useState('')
-  const [trigger, setTrigger] = useState(0)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [documentObject, setDocumentObject] = useState({ name: '', id: 0 })
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     async function getAlldocument(): Promise<void> {
@@ -19,9 +20,10 @@ export default function Document(): React.JSX.Element {
       if (result.success) {
         setDocuments(result.data)
       }
+      setIsLoading(false)
     }
     getAlldocument()
-  }, [trigger])
+  }, [])
 
   // Memoize filtering for performance with large datasets
   const filteredDocuments = useMemo(() => {
@@ -46,15 +48,30 @@ export default function Document(): React.JSX.Element {
     }
   }
 
-  // later check if it's better to use optimistic ui by filtering item than refecthing
   const handleDeleteFile = async (id: number): Promise<void> => {
-    await window.api.document.delete(id)
-    setTrigger((prev) => prev + 1)
+    const result = await window.api.document.delete(id)
+
+    if (result.success) {
+      setDocuments((prev) => prev.filter((doc) => doc.id !== id))
+    }
+
+    handleCloseDeleteModal()
   }
 
   const handleCloseDeleteModal = (): void => {
     setShowDeleteModal(false)
   }
+
+  const handleDeleteClick = useCallback((docInfo: { id: number; name: string }) => {
+    setDocumentObject(docInfo)
+    setShowDeleteModal(true)
+  }, [])
+
+  const handleOpen = useCallback((path: string) => {
+    handleOpenDocument(path)
+  }, [])
+
+  if (isLoading) return <Loader />
 
   return (
     <>
@@ -80,33 +97,55 @@ export default function Document(): React.JSX.Element {
 
         <div className="grid grid-cols-4 gap-x-6 gap-y-8">
           {filteredDocuments.map((doc) => (
-            <div
-              onClick={() => handleOpenDocument(doc.path)}
+            <DocumentCard
               key={doc.id}
-              className="p-5 border border-border-primary rounded-lg bg-white hover:shadow-md cursor-pointer transition-all duration-200 relative"
-            >
-              <Trash2
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setDocumentObject({ id: doc.id, name: doc.filename })
-                  setShowDeleteModal(true)
-                }}
-                size={20}
-                className="absolute right-6 top-6 text-secondary hover:text-red-400"
-              />
-              <div className="w-11 h-11 bg-blue-100 flex items-center justify-center rounded-md mb-5">
-                <File size={20} className="fill-blue-600 stroke-blue-600" />
-              </div>
-              <p className="font-semibold mb-1 text-primary truncate">{doc.filename}</p>
-              <p className="text-xs flex gap-1">
-                <span>{formatSize(doc.size)}</span>
-                <span>•</span>
-                <span>{new Date(doc.created_at).toLocaleDateString('fr-FR')}</span>
-              </p>
-            </div>
+              doc={doc}
+              onOpen={handleOpen}
+              onDeleteClick={handleDeleteClick}
+            />
           ))}
         </div>
       </div>
     </>
   )
 }
+
+type Props = {
+  doc: DocumentType
+  onOpen: (path: string) => void
+  onDeleteClick: (doc: { id: number; name: string }) => void
+}
+
+const DocumentCard = memo(function DocumentCard({
+  doc,
+  onOpen,
+  onDeleteClick
+}: Props): React.JSX.Element {
+  return (
+    <div
+      onClick={() => onOpen(doc.path)}
+      className="p-5 border border-border-primary rounded-lg bg-white hover:shadow-md cursor-pointer transition-all duration-200 relative"
+    >
+      <Trash2
+        onClick={(e) => {
+          e.stopPropagation()
+          onDeleteClick({ id: doc.id, name: doc.filename })
+        }}
+        size={20}
+        className="absolute right-6 top-6 text-gray-secondary hover:text-red-400"
+      />
+
+      <div className="w-11 h-11 bg-blue-100 flex items-center justify-center rounded-md mb-5">
+        <File size={20} className="fill-blue-600 stroke-blue-600" />
+      </div>
+
+      <p className="font-semibold mb-1 text-black-primary truncate">{doc.filename}</p>
+
+      <p className="text-xs flex gap-1">
+        <span>{formatSize(doc.size)}</span>
+        <span>•</span>
+        <span>{new Date(doc.created_at).toLocaleDateString('fr-FR')}</span>
+      </p>
+    </div>
+  )
+})
