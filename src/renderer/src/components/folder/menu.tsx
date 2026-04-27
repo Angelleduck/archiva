@@ -1,5 +1,5 @@
 import { EllipsisVertical, SquarePen, Trash2 } from 'lucide-react'
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Folder } from 'src/main/services/folder/folder.type'
 
 interface MenuProps {
@@ -7,7 +7,8 @@ interface MenuProps {
   folder: Folder
 }
 
-export function Menu({ onSelectFolder, folder }: MenuProps): React.JSX.Element {
+export function FolderMenu({ onSelectFolder, folder }: MenuProps): React.JSX.Element {
+  console.log('trigger foldeer menu or sub')
   return (
     <Popover>
       <PopoverTrigger asChild onClick={(e) => e.stopPropagation()}>

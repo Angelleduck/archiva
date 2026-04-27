@@ -4,21 +4,28 @@ import { File, X } from 'lucide-react'
 import type { FolderDocuments as FolderDocumentsType } from 'src/main/services/folder/folder.type'
 import { Glass } from '../svg/glass'
 import { useDoucmentSearch } from '@renderer/hooks/useDocumentSearch'
+import toast from 'react-hot-toast'
 
 interface DocumentSectionProps {
   folderDocuments: FolderDocumentsType[]
-  handleOpenDocument: (path: string) => Promise<void>
   handleRemoveDocument: (folderId: string | undefined, documentId: string) => Promise<void>
   folderId: string | undefined
 }
 
 export function DocumentSection({
   folderDocuments,
-  handleOpenDocument,
   handleRemoveDocument,
   folderId
 }: DocumentSectionProps): React.JSX.Element {
   const { filteredDocuments, debouncedSetSearchTerm } = useDoucmentSearch(folderDocuments)
+
+  const handleOpenDocument = async (filePath: string): Promise<void> => {
+    const result = await window.api.document.open(filePath)
+    if (result.success == false && result.message) {
+      toast.error(result.message)
+    }
+  }
+
   return (
     <div
       className="p-5 border border-border-primary rounded-lg bg-white
@@ -41,9 +48,9 @@ export function DocumentSection({
       </div>
 
       <div className="space-y-4 max-h-128 overflow-y-auto">
-        {filteredDocuments.map((doc, idx) => (
+        {filteredDocuments.map((doc) => (
           <div
-            key={idx}
+            key={doc.id}
             onClick={() => {
               handleOpenDocument(doc.path)
             }}

@@ -5,27 +5,30 @@ import type { Document } from 'src/main/services/document/document.type'
 interface useAvailableDocumentsType {
   documentsNotInFolder: Document[]
   setDocumentsNotInFolder: Dispatch<SetStateAction<Document[]>>
+  isLoading: boolean
 }
 
 export function useAvailableDocuments(
   folderDocuments: FolderDocumentsType[]
 ): useAvailableDocumentsType {
   const [documentsNotInFolder, setDocumentsNotInFolder] = useState<Document[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    console.log('check fetcheee')
     async function getAlldocument(): Promise<void> {
       const allDocuments = await window.api.document.getAll()
 
       if (allDocuments.success) {
         const result = allDocuments.data.filter(
+          //laterrrr
           (doc) => !folderDocuments.find((fd) => fd.id === doc.id)
         )
         setDocumentsNotInFolder(result)
       }
+      setIsLoading(false)
     }
     getAlldocument()
   }, [folderDocuments])
 
-  return { documentsNotInFolder, setDocumentsNotInFolder }
+  return { documentsNotInFolder, setDocumentsNotInFolder, isLoading }
 }

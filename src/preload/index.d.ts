@@ -13,6 +13,7 @@ import type {
   CreateFolderType,
   CreateSubfolderType,
   DeleteFolderType,
+  editFolderTitleType,
   GetFolderDocumentsType,
   GetFoldersType,
   GetFolderType,
@@ -30,13 +31,14 @@ declare global {
         getRecent: () => Promise<GetRecentType>
         open: (path: string) => Promise<OpenDocumentType>
         delete: (id: number) => Promise<DeleteType>
+        editDocumentTitle: (id: number, title: string) => Promise<void>
         stats: () => Promise<GetStatsType>
       }
       folder: {
         getRootFolders: () => Promise<GetFoldersType>
         get: (id: string) => Promise<GetFolderType>
         getSubfolders: (id: string) => Promise<GetFoldersType>
-        editFolderTitle: (id: number, title: string) => void
+        editFolderTitle: (id: number, title: string) => Promise<editFolderTitleType>
         getDocuments: (id: string) => Promise<GetFolderDocumentsType>
         create: (name: string) => Promise<CreateFolderType>
         createSubfolder: (parentId: number, name: string) => Promise<CreateSubfolderType>

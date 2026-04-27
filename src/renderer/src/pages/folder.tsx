@@ -1,13 +1,13 @@
+import Loader from '@renderer/components/document/loader'
 import { DocumentSection } from '@renderer/components/folder/document-section'
 import { DocumentModal } from '@renderer/components/folder/modal/add-document'
 import { SubfolderModal } from '@renderer/components/folder/modal/add-subfolder'
 import { Subfolders } from '@renderer/components/folder/subfolders'
 import { Glass } from '@renderer/components/svg/glass'
-import { useAvailableDocuments } from '@renderer/hooks/useAvailableDocuments'
 import { useFolderData } from '@renderer/hooks/useFolderData'
 import { useFolderSearch } from '@renderer/hooks/useFolderSearch'
 import { ChevronLeft, FolderIcon, Plus } from 'lucide-react'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 export default function Folder(): React.JSX.Element {
@@ -16,8 +16,9 @@ export default function Folder(): React.JSX.Element {
 
   const navigate = useNavigate()
   const { id } = useParams()
-  const { folderDocuments, folder, subfolders, refetch } = useFolderData(id)
-  const { documentsNotInFolder, setDocumentsNotInFolder } = useAvailableDocuments(folderDocuments)
+  const { folderDocuments, folder, subfolders, refetch, isLoading, setSubfolders } =
+    useFolderData(id)
+
   const { filteredSubfolders, debouncedSetSearchTerm } = useFolderSearch(subfolders)
 
   const handleCloseDocumentModal = (): void => {
@@ -30,10 +31,6 @@ export default function Folder(): React.JSX.Element {
     refetch()
   }
 
-  const handleOpenDocument = async (filePath: string): Promise<void> => {
-    await window.api.document.open(filePath)
-  }
-
   const handleRemoveDocument = async (
     folderId: string | undefined,
     documentId: string
@@ -41,13 +38,13 @@ export default function Folder(): React.JSX.Element {
     await window.api.folder.removeDocument(folderId, documentId)
     handleTrigger()
   }
-  const handleFilterDocuments = (value): void => {
-    setDocumentsNotInFolder(value)
-  }
-
-  const handleSetShowFolderModal = (): void => {
+  const handleSetShowFolderModal = useCallback((): void => {
     setShowFolderModal(true)
-  }
+  }, [])
+
+  console.log('subfolder')
+
+  if (isLoading) return <Loader />
 
   return (
     <>
@@ -62,8 +59,7 @@ export default function Folder(): React.JSX.Element {
         <DocumentModal
           onCloseModal={handleCloseDocumentModal}
           folderId={id}
-          documents={documentsNotInFolder}
-          onFilterDocuments={handleFilterDocuments}
+          folderDocuments={folderDocuments}
           onTrigger={handleTrigger}
         />
       )}
@@ -111,13 +107,12 @@ export default function Folder(): React.JSX.Element {
         <Subfolders
           subfolders={filteredSubfolders}
           handleSetShowFolderModal={handleSetShowFolderModal}
-          handleTrigger={handleTrigger}
+          setSubfolders={setSubfolders}
         />
 
         <DocumentSection
           folderDocuments={folderDocuments}
           folderId={id}
-          handleOpenDocument={handleOpenDocument}
           handleRemoveDocument={handleRemoveDocument}
         />
       </div>

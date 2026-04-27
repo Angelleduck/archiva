@@ -1,5 +1,5 @@
 import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
-import { join } from 'path'
+import { join } from 'node:path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import DocumentService from './services/document/document.service'
@@ -135,6 +135,10 @@ app.whenReady().then(() => {
 
   ipcMain.handle('document:get-stats', async (): Promise<GetStatsType> => {
     return documentService.getStats()
+  })
+
+  ipcMain.handle('document:edit-title', async (_event, folderId: number, title: string) => {
+    return documentService.editDocumentTitle(folderId, title)
   })
 
   //=========================== Folders ============================//

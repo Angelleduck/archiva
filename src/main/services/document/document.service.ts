@@ -6,6 +6,7 @@ import type {
   AddFileType,
   DeleteType,
   Document,
+  editDocumentTitleType,
   GetAllType,
   GetRecentType,
   GetStatsType
@@ -88,6 +89,20 @@ class DocumentService {
         if (err) throw err
       })
 
+      return { success: true }
+    } catch {
+      return { success: false }
+    }
+  }
+
+  editDocumentTitle(id: number, title: string): editDocumentTitleType {
+    try {
+      const stmt = this.dbService.db.prepare(`
+        UPDATE documents
+        SET filename = ?
+        WHERE id = ? ;
+      `)
+      stmt.run(title, id)
       return { success: true }
     } catch {
       return { success: false }

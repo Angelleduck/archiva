@@ -1,36 +1,36 @@
 import { Glass } from '@renderer/components/svg/glass'
 import { debounce } from '@renderer/helper/utils'
+import { useAvailableDocuments } from '@renderer/hooks/useAvailableDocuments'
 import { FolderIcon, Plus } from 'lucide-react'
-import { memo, useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import type { Document as DocumentType } from 'src/main/services/document/document.type'
+import type { FolderDocuments as FolderDocumentsType } from 'src/main/services/folder/folder.type'
 
 interface DocumentModalProps {
   onCloseModal: () => void
   onTrigger: () => void
-  onFilterDocuments: (value) => void
-  documents: DocumentType[]
   folderId: string | undefined
+  folderDocuments: FolderDocumentsType[]
 }
 
 export function DocumentModal({
   onCloseModal,
   onTrigger,
-  onFilterDocuments,
-  documents,
-  folderId
+  folderId,
+  folderDocuments
 }: DocumentModalProps): React.JSX.Element {
-  const handleAdddocument = useCallback(
-    async (documentId: number): Promise<void> => {
-      await window.api.folder.addDocument(folderId, documentId)
-      onTrigger()
-      onCloseModal()
-    },
-    [folderId, onTrigger, onCloseModal]
-  )
+  const { documentsNotInFolder, setDocumentsNotInFolder, isLoading } =
+    useAvailableDocuments(folderDocuments)
+
+  const handleAdddocument = async (documentId: number): Promise<void> => {
+    await window.api.folder.addDocument(folderId, documentId)
+    onTrigger()
+    onCloseModal()
+  }
 
   const handleSearch = (value: string): void => {
-    const data = documents.filter((el) => el.filename.toLowerCase().includes(value))
-    onFilterDocuments(data)
+    const data = documentsNotInFolder.filter((el) => el.filename.toLowerCase().includes(value))
+    setDocumentsNotInFolder(data)
   }
 
   // eslint-disable-next-line react-hooks/preserve-manual-memoization, react-hooks/exhaustive-deps
@@ -39,7 +39,7 @@ export function DocumentModal({
   return (
     <div className="inset-0 fixed bg-black/50 z-10 flex justify-center items-center">
       <div className="basis-2xl bg-white p-6 rounded-lg">
-        <h3 className="font-bold text-xl mb-2">Ajouter un document llll</h3>
+        <h3 className="font-bold text-xl mb-2">Ajouter un document</h3>
 
         <div
           className="px-3 border-2 border-border-primary rounded-lg bg-white relative 
@@ -55,12 +55,16 @@ export function DocumentModal({
         </div>
 
         <div className="mb-4 space-y-2 max-h-100 overflow-y-auto">
-          {documents.length == 0 ? (
+          {isLoading ? (
+            <p className="text-center text-gray-secondary my-12">loading</p>
+          ) : documentsNotInFolder.length === 0 ? (
             <p className="text-center text-gray-secondary my-12">
               Tous vos documents sont déjà dans ce dossier
             </p>
           ) : (
-            documents.map((doc) => <Document key={doc.id} doc={doc} onAdd={handleAdddocument} />)
+            documentsNotInFolder.map((doc) => (
+              <Document key={doc.id} doc={doc} onAdd={handleAdddocument} />
+            ))
           )}
         </div>
 
@@ -82,7 +86,7 @@ type Props = {
   onAdd: (id: number) => void
 }
 
-const Document = memo(function Document({ doc, onAdd }: Props) {
+function Document({ doc, onAdd }: Props): React.JSX.Element {
   return (
     <div
       onClick={() => onAdd(doc.id)}
@@ -96,11 +100,11 @@ const Document = memo(function Document({ doc, onAdd }: Props) {
         <div className="flex justify-between items-center w-full">
           <div className="flex flex-col">
             <p className="text-sm font-medium">{doc.filename}</p>
-            {/* <p className="text-xs">{new Date(doc.created_at).toLocaleDateString('fr-FR')}</p> */}
+            <p className="text-xs">{new Date(doc.created_at).toLocaleDateString('fr-FR')}</p>
           </div>
           <Plus className="text-blue-300" />
         </div>
       </div>
     </div>
   )
-})
+}

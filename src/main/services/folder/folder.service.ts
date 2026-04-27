@@ -51,7 +51,8 @@ class FolderService {
       const stmt = this.dbService.db.prepare<Folder[], Folder>(`
         SELECT
           id,
-          name
+          name,
+          created_at
         FROM folders
         WHERE parent_id IS NULL;
       `)

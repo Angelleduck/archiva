@@ -15,10 +15,10 @@ export function DeleteModal({
 }: DeleteModalProps): React.JSX.Element {
   return (
     <div className="inset-0 fixed bg-black/50 z-10 flex justify-center items-center">
-      <div className="basis-md bg-white p-6 rounded-lg">
+      <div className="basis-md max-w-md bg-white p-6 rounded-lg">
         <h3 className="font-bold text-xl mb-2">Supprimer {type}</h3>
         <p>Êtes-vous sûr de vouloir supprimer</p>
-        <p className="font-semibold mb-2">{name} ?</p>
+        <p className="font-semibold mb-2 truncate">{name} ?</p>
 
         <div className="flex gap-2">
           <button

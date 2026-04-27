@@ -1,18 +1,22 @@
 import Loader from '@renderer/components/document/loader'
+import { DocumentMenu } from '@renderer/components/document/menu'
 import { DeleteModal } from '@renderer/components/folder/modal/delete'
+import { EditTitleModal } from '@renderer/components/folder/modal/edit-title'
 import { Glass } from '@renderer/components/svg/glass'
 import { debounce, formatSize } from '@renderer/helper/utils'
-import { File, Trash2 } from 'lucide-react'
+import { File } from 'lucide-react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
-import type { Document as DocumentType } from 'src/main/services/document/document.type'
+import type { Document } from 'src/main/services/document/document.type'
 
 export default function Document(): React.JSX.Element {
-  const [documents, setDocuments] = useState<DocumentType[]>([])
+  const [documents, setDocuments] = useState<Document[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [documentObject, setDocumentObject] = useState({ name: '', id: 0 })
   const [isLoading, setIsLoading] = useState(true)
+  const [showEdidtTitleModal, setShowEditTileModal] = useState(false)
+  const [trigger, setTrigger] = useState(0)
 
   useEffect(() => {
     async function getAlldocument(): Promise<void> {
@@ -23,7 +27,7 @@ export default function Document(): React.JSX.Element {
       setIsLoading(false)
     }
     getAlldocument()
-  }, [])
+  }, [trigger])
 
   // Memoize filtering for performance with large datasets
   const filteredDocuments = useMemo(() => {
@@ -71,6 +75,26 @@ export default function Document(): React.JSX.Element {
     handleOpenDocument(path)
   }, [])
 
+  const handleSelectDocument = useCallback((document: Document, purpose: 'delete' | 'edit') => {
+    setDocumentObject({ id: document.id, name: document.filename })
+
+    if (purpose === 'delete') {
+      setShowDeleteModal(true)
+    } else {
+      setShowEditTileModal(true)
+    }
+  }, [])
+
+  const handleCloseEditTitleModal = (): void => {
+    setShowEditTileModal(false)
+  }
+
+  const handleEdit = async (id: number, title: string): Promise<void> => {
+    await window.api.document.editDocumentTitle(id, title)
+    setTrigger((prev) => prev + 1)
+    handleCloseEditTitleModal()
+  }
+
   if (isLoading) return <Loader />
 
   return (
@@ -82,6 +106,14 @@ export default function Document(): React.JSX.Element {
           id={documentObject.id}
           type="document"
           onDelete={handleDeleteFile}
+        />
+      )}
+      {showEdidtTitleModal && (
+        <EditTitleModal
+          onCloseModal={handleCloseEditTitleModal}
+          name={documentObject.name}
+          onEdit={handleEdit}
+          id={documentObject.id}
         />
       )}
       <div>
@@ -102,6 +134,7 @@ export default function Document(): React.JSX.Element {
               doc={doc}
               onOpen={handleOpen}
               onDeleteClick={handleDeleteClick}
+              handleSelectDocument={handleSelectDocument}
             />
           ))}
         </div>
@@ -111,29 +144,24 @@ export default function Document(): React.JSX.Element {
 }
 
 type Props = {
-  doc: DocumentType
+  doc: Document
   onOpen: (path: string) => void
   onDeleteClick: (doc: { id: number; name: string }) => void
+  handleSelectDocument: (document: Document, purpose: 'delete' | 'edit') => void
 }
 
 const DocumentCard = memo(function DocumentCard({
   doc,
   onOpen,
-  onDeleteClick
+  handleSelectDocument
 }: Props): React.JSX.Element {
   return (
     <div
       onClick={() => onOpen(doc.path)}
-      className="p-5 border border-border-primary rounded-lg bg-white hover:shadow-md cursor-pointer transition-all duration-200 relative"
+      className="p-5 border border-border-primary rounded-lg bg-white hover:shadow-md
+      cursor-pointer transition-all duration-200 relative"
     >
-      <Trash2
-        onClick={(e) => {
-          e.stopPropagation()
-          onDeleteClick({ id: doc.id, name: doc.filename })
-        }}
-        size={20}
-        className="absolute right-6 top-6 text-gray-secondary hover:text-red-400"
-      />
+      <DocumentMenu onSelectDocument={handleSelectDocument} document={doc} />
 
       <div className="w-11 h-11 bg-blue-100 flex items-center justify-center rounded-md mb-5">
         <File size={20} className="fill-blue-600 stroke-blue-600" />

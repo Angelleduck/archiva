@@ -9,6 +9,8 @@ interface useFolderDataType {
   folder: FolderType | undefined
   subfolders: FolderType[]
   refetch: () => void
+  isLoading: boolean
+  setSubfolders: React.Dispatch<React.SetStateAction<FolderType[]>>
 }
 
 export function useFolderData(folderId: string | undefined): useFolderDataType {
@@ -16,14 +18,21 @@ export function useFolderData(folderId: string | undefined): useFolderDataType {
   const [folder, setFolder] = useState<FolderType>()
   const [subfolders, setSubfolders] = useState<FolderType[]>([])
   const [trigger, setTrigger] = useState(0)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    function sleep(): Promise<void> {
+      return new Promise((resolve) => setTimeout(resolve, 150))
+    }
+
     async function getFolderDocuments(folderId: string | undefined): Promise<void> {
       if (!folderId) return
+      setIsLoading(true)
       const [documentResult, folderResult, subfolders] = await Promise.all([
         window.api.folder.getDocuments(folderId),
         window.api.folder.get(folderId),
-        window.api.folder.getSubfolders(folderId)
+        window.api.folder.getSubfolders(folderId),
+        sleep()
       ])
 
       if (documentResult.success && folderResult.success && subfolders.success) {
@@ -31,6 +40,7 @@ export function useFolderData(folderId: string | undefined): useFolderDataType {
         setFolder(folderResult.data)
         setSubfolders(subfolders.data)
       }
+      setIsLoading(false)
     }
     getFolderDocuments(folderId)
   }, [folderId, trigger])
@@ -39,5 +49,5 @@ export function useFolderData(folderId: string | undefined): useFolderDataType {
     setTrigger((prev) => prev + 1)
   }, [])
 
-  return { folderDocuments, folder, subfolders, refetch }
+  return { folderDocuments, folder, subfolders, refetch, isLoading, setSubfolders }
 }

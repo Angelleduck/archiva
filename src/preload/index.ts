@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import type {
   DeleteType,
+  editDocumentTitleType,
   GetAllType,
   GetRecentType,
   GetStatsType,
@@ -31,7 +32,9 @@ const api = {
     open: (filePath: string): Promise<OpenDocumentType> =>
       ipcRenderer.invoke('document:open', filePath),
     delete: (id: number): Promise<DeleteType> => ipcRenderer.invoke('document:delete-file', id),
-    stats: (): Promise<GetStatsType> => ipcRenderer.invoke('document:get-stats')
+    stats: (): Promise<GetStatsType> => ipcRenderer.invoke('document:get-stats'),
+    editDocumentTitle: (id: number, title: string): Promise<editDocumentTitleType> =>
+      ipcRenderer.invoke('document:edit-title', id, title)
   },
 
   //=========================== Folders ============================//

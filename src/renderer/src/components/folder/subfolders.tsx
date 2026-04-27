@@ -1,47 +1,50 @@
-import { CirclePlus, FolderIcon } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { CirclePlus } from 'lucide-react'
 
 import type { Folder, Folder as FolderType } from 'src/main/services/folder/folder.type'
 import { DeleteModal } from './modal/delete'
-import { useState } from 'react'
-import { Menu } from '../menu'
+import { useCallback, useState } from 'react'
 import { EditTitleModal } from './modal/edit-title'
+import { FolderCard } from '../subfolder/folder-card'
 
 interface SubfoldersProps {
   subfolders: FolderType[]
   handleSetShowFolderModal: () => void
-  handleTrigger: () => void
+  setSubfolders: React.Dispatch<React.SetStateAction<FolderType[]>>
 }
 
 export function Subfolders({
   subfolders,
   handleSetShowFolderModal,
-  handleTrigger
+  setSubfolders
 }: SubfoldersProps): React.JSX.Element {
-  const navigate = useNavigate()
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showEdidtTitleModal, setShowEditTitleModal] = useState(false)
   const [folderObject, setfolderObject] = useState({ name: '', id: 0 })
 
-  const handleSelectFolder = (folder: Folder, purpose: 'delete' | 'edit'): void => {
+  const handleSelectFolder = useCallback((folder: Folder, purpose: 'delete' | 'edit'): void => {
     setfolderObject({ id: folder.id, name: folder.name })
-    if (purpose == 'delete') {
+    if (purpose === 'delete') {
       setShowDeleteModal(true)
     } else {
       setShowEditTitleModal(true)
     }
-  }
+  }, [])
 
   const handleEdit = async (id: number, title: string): Promise<void> => {
-    await window.api.folder.editFolderTitle(id, title)
+    const result = await window.api.folder.editFolderTitle(id, title)
+    if (result.success) {
+      setSubfolders((prev) =>
+        prev.map((folder) => (folder.id === id ? { ...folder, name: title } : folder))
+      )
+    }
+
     handleCloseEditTitleModal()
-    handleTrigger()
   }
 
   const handleDeleteFolder = async (id: number): Promise<void> => {
     await window.api.folder.delete(id)
+    setSubfolders((prev) => prev.filter((subfolder) => subfolder.id !== id))
     handleCloseDeleteModal()
-    handleTrigger()
   }
   const handleCloseEditTitleModal = (): void => {
     setShowEditTitleModal(false)
@@ -49,6 +52,8 @@ export function Subfolders({
   const handleCloseDeleteModal = (): void => {
     setShowDeleteModal(false)
   }
+
+  console.log('re-ren-suby')
 
   return (
     <>
@@ -71,20 +76,7 @@ export function Subfolders({
       )}
       <div className="grid grid-cols-4 gap-x-6 gap-y-6 mb-4">
         {subfolders.map((folder) => (
-          <div
-            onClick={() => navigate(`/folders/${folder.id}`)}
-            key={folder.id}
-            className="p-5 border border-border-primary rounded-lg bg-white hover:shadow-md cursor-pointer transition-all duration-200 relative"
-          >
-            <Menu onSelectFolder={handleSelectFolder} folder={folder} />
-            <div className="w-11 h-11 bg-blue-100 flex items-center justify-center rounded-md mb-5">
-              <FolderIcon size={20} className="fill-blue-600 stroke-blue-600" />
-            </div>
-            <p className="font-semibold mb-1 text-black-primary truncate">{folder.name}</p>
-            <p className="text-xs flex gap-1">
-              <span>{new Date(folder.created_at).toLocaleDateString('fr-FR')}</span>
-            </p>
-          </div>
+          <FolderCard folder={folder} handleSelectFolder={handleSelectFolder} key={folder.id} />
         ))}
         <div
           onClick={handleSetShowFolderModal}
