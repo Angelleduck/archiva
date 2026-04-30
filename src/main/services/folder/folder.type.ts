@@ -9,7 +9,7 @@ interface Folder {
   created_at: string
 }
 interface FolderDocuments {
-  id: string
+  id: number
   filename: string
   path: string
   created_at: string

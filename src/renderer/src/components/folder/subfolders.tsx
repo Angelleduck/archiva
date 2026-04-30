@@ -5,6 +5,7 @@ import { DeleteModal } from './modal/delete'
 import { useCallback, useState } from 'react'
 import { EditTitleModal } from './modal/edit-title'
 import { FolderCard } from '../subfolder/folder-card'
+import { useNavigate } from 'react-router-dom'
 
 interface SubfoldersProps {
   subfolders: FolderType[]
@@ -55,6 +56,15 @@ export function Subfolders({
 
   console.log('re-ren-suby')
 
+  const navigate = useNavigate()
+
+  const handleNavigate = useCallback(
+    (id: number) => {
+      navigate(`/folders/${id}`)
+    },
+    [navigate]
+  )
+
   return (
     <>
       {showEdidtTitleModal && (
@@ -76,7 +86,12 @@ export function Subfolders({
       )}
       <div className="grid grid-cols-4 gap-x-6 gap-y-6 mb-4">
         {subfolders.map((folder) => (
-          <FolderCard folder={folder} handleSelectFolder={handleSelectFolder} key={folder.id} />
+          <FolderCard
+            folder={folder}
+            handleSelectFolder={handleSelectFolder}
+            onNavigate={handleNavigate}
+            key={folder.id}
+          />
         ))}
         <div
           onClick={handleSetShowFolderModal}

@@ -50,9 +50,13 @@ export default function Folders(): React.JSX.Element {
   }
 
   const handleEdit = async (id: number, title: string): Promise<void> => {
-    window.api.folder.editFolderTitle(id, title)
+    const result = await window.api.folder.editFolderTitle(id, title)
+    if (result.success) {
+      setFolders((prev) =>
+        prev.map((folder) => (folder.id === id ? { ...folder, name: title } : folder))
+      )
+    }
     handleCloseEditTitleModal()
-    setTrigger((prev) => prev + 1)
   }
 
   const handleCloseDeleteModal = (): void => {
@@ -71,6 +75,8 @@ export default function Folders(): React.JSX.Element {
       setShowEditTileModal(true)
     }
   }, [])
+
+  console.log('main comp')
 
   if (isLoading) return <Loader />
 

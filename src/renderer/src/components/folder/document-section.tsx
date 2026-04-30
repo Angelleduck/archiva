@@ -26,6 +26,7 @@ export function DocumentSection({
     }
   }
 
+  console.log('the doc section')
   return (
     <div
       className="p-5 border border-border-primary rounded-lg bg-white

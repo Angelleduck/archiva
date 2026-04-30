@@ -2,7 +2,7 @@ import { Glass } from '@renderer/components/svg/glass'
 import { debounce } from '@renderer/helper/utils'
 import { useAvailableDocuments } from '@renderer/hooks/useAvailableDocuments'
 import { FolderIcon, Plus } from 'lucide-react'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import type { Document as DocumentType } from 'src/main/services/document/document.type'
 import type { FolderDocuments as FolderDocumentsType } from 'src/main/services/folder/folder.type'
 
@@ -19,21 +19,23 @@ export function DocumentModal({
   folderId,
   folderDocuments
 }: DocumentModalProps): React.JSX.Element {
-  const { documentsNotInFolder, setDocumentsNotInFolder, isLoading } =
-    useAvailableDocuments(folderDocuments)
+  const [searchTerm, setSearchTerm] = useState('')
+  const { documentsNotInFolder, isLoading } = useAvailableDocuments(folderDocuments)
 
-  const handleAdddocument = async (documentId: number): Promise<void> => {
+  const handleAddDocument = async (documentId: number): Promise<void> => {
     await window.api.folder.addDocument(folderId, documentId)
     onTrigger()
     onCloseModal()
   }
 
   const handleSearch = (value: string): void => {
-    const data = documentsNotInFolder.filter((el) => el.filename.toLowerCase().includes(value))
-    setDocumentsNotInFolder(data)
+    setSearchTerm(value.toLowerCase())
   }
 
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization, react-hooks/exhaustive-deps
+  const filteredDocuments = useMemo(() => {
+    return documentsNotInFolder.filter((doc) => doc.filename.toLowerCase().includes(searchTerm))
+  }, [documentsNotInFolder, searchTerm])
+
   const debouncedHandleSearch = useMemo(() => debounce(handleSearch, 600), [])
 
   return (
@@ -56,14 +58,14 @@ export function DocumentModal({
 
         <div className="mb-4 space-y-2 max-h-100 overflow-y-auto">
           {isLoading ? (
-            <p className="text-center text-gray-secondary my-12">loading</p>
-          ) : documentsNotInFolder.length === 0 ? (
+            <p className="text-center text-gray-secondary my-12">Chargement</p>
+          ) : filteredDocuments.length === 0 ? (
             <p className="text-center text-gray-secondary my-12">
               Tous vos documents sont déjà dans ce dossier
             </p>
           ) : (
-            documentsNotInFolder.map((doc) => (
-              <Document key={doc.id} doc={doc} onAdd={handleAdddocument} />
+            filteredDocuments.map((doc) => (
+              <Document key={doc.id} doc={doc} onAdd={handleAddDocument} />
             ))
           )}
         </div>

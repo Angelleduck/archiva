@@ -1,10 +1,9 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { FolderDocuments as FolderDocumentsType } from 'src/main/services/folder/folder.type'
 import type { Document } from 'src/main/services/document/document.type'
 
 interface useAvailableDocumentsType {
   documentsNotInFolder: Document[]
-  setDocumentsNotInFolder: Dispatch<SetStateAction<Document[]>>
   isLoading: boolean
 }
 
@@ -19,10 +18,8 @@ export function useAvailableDocuments(
       const allDocuments = await window.api.document.getAll()
 
       if (allDocuments.success) {
-        const result = allDocuments.data.filter(
-          //laterrrr
-          (doc) => !folderDocuments.find((fd) => fd.id === doc.id)
-        )
+        const folderIds = new Set(folderDocuments.map((fd) => fd.id))
+        const result = allDocuments.data.filter((doc) => !folderIds.has(doc.id))
         setDocumentsNotInFolder(result)
       }
       setIsLoading(false)
@@ -30,5 +27,5 @@ export function useAvailableDocuments(
     getAlldocument()
   }, [folderDocuments])
 
-  return { documentsNotInFolder, setDocumentsNotInFolder, isLoading }
+  return { documentsNotInFolder, isLoading }
 }

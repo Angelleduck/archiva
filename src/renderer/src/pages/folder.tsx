@@ -42,8 +42,6 @@ export default function Folder(): React.JSX.Element {
     setShowFolderModal(true)
   }, [])
 
-  console.log('subfolder')
-
   if (isLoading) return <Loader />
 
   return (
