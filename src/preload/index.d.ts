@@ -1,7 +1,9 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import type {
   DeleteType,
+  editDocumentTitleType,
   GetAllType,
+  getDocumentCountType,
   GetRecentType,
   GetStatsType,
   ImportFileType,
@@ -27,12 +29,13 @@ declare global {
       document: {
         selectFile: () => Promise<SelectFile>
         importFile: (documents: ImportFileType[]) => Promise<void>
-        getAll: () => Promise<GetAllType>
+        getAll: (offset: number, text: string) => Promise<GetAllType>
         getRecent: () => Promise<GetRecentType>
         open: (path: string) => Promise<OpenDocumentType>
         delete: (id: number) => Promise<DeleteType>
-        editDocumentTitle: (id: number, title: string) => Promise<void>
+        editDocumentTitle: (id: number, title: string) => Promise<editDocumentTitleType>
         stats: () => Promise<GetStatsType>
+        getDocumentCount: (searchText: string) => Promise<getDocumentCountType>
       }
       folder: {
         getRootFolders: () => Promise<GetFoldersType>

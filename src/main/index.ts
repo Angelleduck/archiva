@@ -108,7 +108,7 @@ app.whenReady().then(() => {
       if (!fs.existsSync(filePath)) {
         return {
           success: false,
-          message: "impossible d'ouvrir le fichier. \n Supprimez et re-importez le fichier."
+          message: "Impossible d'ouvrir le fichier. \n Supprimer et re-importer le fichier."
         }
       }
       await shell.openPath(filePath)
@@ -116,14 +116,17 @@ app.whenReady().then(() => {
     } catch {
       return {
         success: false,
-        message: "impossible d'ouvrir le fichier. \n Supprimez et re-importez le fichier."
+        message: "Impossible d'ouvrir le fichier. \n Supprimer et re-importer le fichier."
       }
     }
   })
 
-  ipcMain.handle('document:get-all', async (): Promise<GetAllType> => {
-    return documentService.getAll()
-  })
+  ipcMain.handle(
+    'document:get-all',
+    async (_event, offset: number, text: string): Promise<GetAllType> => {
+      return documentService.getAll(offset, text)
+    }
+  )
 
   ipcMain.handle('document:get-recentFiles', async (): Promise<GetRecentType> => {
     return documentService.getRecent()
@@ -139,6 +142,10 @@ app.whenReady().then(() => {
 
   ipcMain.handle('document:edit-title', async (_event, folderId: number, title: string) => {
     return documentService.editDocumentTitle(folderId, title)
+  })
+
+  ipcMain.handle('document:count-all', async (_event, text: string) => {
+    return documentService.getAllDocumentCount(text)
   })
 
   //=========================== Folders ============================//

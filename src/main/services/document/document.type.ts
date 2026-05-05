@@ -33,6 +33,7 @@ type OpenDocumentType = { success: boolean; message?: string }
 type SelectFile = { success: true; data: SelectedFiles[] } | { success: false; message?: string }
 type GetStatsType = { success: true; data: StatsType } | { success: false; message?: string }
 type editDocumentTitleType = { success: boolean; message?: string }
+type getDocumentCountType = { success: boolean; data: number } | { success: false }
 
 export type {
   ImportFileType,
@@ -46,5 +47,6 @@ export type {
   SelectFile,
   SelectedFiles,
   GetStatsType,
-  editDocumentTitleType
+  editDocumentTitleType,
+  getDocumentCountType
 }

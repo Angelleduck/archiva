@@ -1,49 +1,44 @@
 import Loader from '@renderer/components/document/loader'
 import { DocumentMenu } from '@renderer/components/document/menu'
+import { Paginate } from '@renderer/components/document/paginate'
 import { DeleteModal } from '@renderer/components/folder/modal/delete'
 import { EditTitleModal } from '@renderer/components/folder/modal/edit-title'
 import { Glass } from '@renderer/components/svg/glass'
-import { debounce, formatSize } from '@renderer/helper/utils'
+import { formatSize } from '@renderer/helper/utils'
 import { File } from 'lucide-react'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import type { Document } from 'src/main/services/document/document.type'
 
 export default function Document(): React.JSX.Element {
   const [documents, setDocuments] = useState<Document[]>([])
-  const [searchTerm, setSearchTerm] = useState('')
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [documentObject, setDocumentObject] = useState({ name: '', id: 0 })
   const [isLoading, setIsLoading] = useState(true)
   const [showEdidtTitleModal, setShowEditTileModal] = useState(false)
   const [trigger, setTrigger] = useState(0)
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(0)
+
+  const searchTerm = useRef('')
 
   useEffect(() => {
     async function getAlldocument(): Promise<void> {
-      const result = await window.api.document.getAll()
-      if (result.success) {
-        setDocuments(result.data)
+      const [allDocument, allPages] = await Promise.all([
+        window.api.document.getAll(page, searchTerm.current),
+        window.api.document.getDocumentCount(searchTerm.current)
+      ])
+      if (allDocument.success) {
+        setDocuments(allDocument.data)
+      }
+
+      if (allPages.success) {
+        setTotalPages(Math.ceil(allPages.data / 20))
       }
       setIsLoading(false)
     }
     getAlldocument()
-  }, [trigger])
-
-  // Memoize filtering for performance with large datasets
-  const filteredDocuments = useMemo(() => {
-    if (searchTerm.length < 2) {
-      return documents
-    }
-
-    return documents.filter((doc) => doc.filename.toLowerCase().includes(searchTerm))
-  }, [documents, searchTerm])
-
-  // Debounce with useCallback
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debouncedSetSearchTerm = useCallback(
-    debounce((value: string) => setSearchTerm(value), 500),
-    []
-  )
+  }, [trigger, page])
 
   const handleOpenDocument = async (filePath: string): Promise<void> => {
     const result = await window.api.document.open(filePath)
@@ -90,9 +85,24 @@ export default function Document(): React.JSX.Element {
   }
 
   const handleEdit = async (id: number, title: string): Promise<void> => {
-    await window.api.document.editDocumentTitle(id, title)
-    setTrigger((prev) => prev + 1)
+    const result = await window.api.document.editDocumentTitle(id, title)
+
+    if (result.success) {
+      setDocuments((prev) =>
+        prev.map((document) => (document.id === id ? { ...document, filename: title } : document))
+      )
+    }
     handleCloseEditTitleModal()
+  }
+
+  const handlePageUpdate = (selectedPage: number): void => {
+    setPage(selectedPage)
+  }
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+    e.preventDefault()
+    setPage(1)
+    setTrigger((prev) => prev + 1)
   }
 
   if (isLoading) return <Loader />
@@ -117,18 +127,22 @@ export default function Document(): React.JSX.Element {
         />
       )}
       <div>
-        <div className="px-3 border-2 border-border-primary rounded-lg bg-white relative flex items-center gap-3 focus-within:border-blue-300 mb-2">
+        <form
+          onSubmit={handleSubmit}
+          className="px-3 border-2 border-border-primary rounded-lg bg-white
+        relative flex items-center gap-3 focus-within:border-blue-300 mb-2"
+        >
           <Glass className="w-5 h-5 text-gray-400" />
           <input
-            onChange={(e) => debouncedSetSearchTerm(e.target.value.toLowerCase())}
+            onChange={(e) => (searchTerm.current = e.target.value)}
             type="text"
             placeholder="Rechercher par nom"
             className="w-full py-3"
           />
-        </div>
+        </form>
 
-        <div className="grid grid-cols-4 gap-x-6 gap-y-8">
-          {filteredDocuments.map((doc) => (
+        <div className="grid grid-cols-4 gap-x-6 gap-y-8 mb-4">
+          {documents.map((doc) => (
             <DocumentCard
               key={doc.id}
               doc={doc}
@@ -138,6 +152,7 @@ export default function Document(): React.JSX.Element {
             />
           ))}
         </div>
+        <Paginate onPageUpdate={handlePageUpdate} page={page} totalPages={totalPages} />
       </div>
     </>
   )

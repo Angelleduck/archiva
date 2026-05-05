@@ -8,6 +8,7 @@ import type {
   Document,
   editDocumentTitleType,
   GetAllType,
+  getDocumentCountType,
   GetRecentType,
   GetStatsType
 } from './document.type'
@@ -43,10 +44,25 @@ class DocumentService {
     }
   }
 
-  getAll(): GetAllType {
+  getAll(arg = 0, text: string): GetAllType {
+    const page = arg < 2 ? 1 : arg
+    const offset = 20 * (page - 1)
+
     try {
-      const stmt = this.dbService.db.prepare<[], Document>('SELECT * FROM documents')
-      const rows = stmt.all()
+      let query = `SELECT * FROM documents`
+      const params: (string | number)[] = [] // <-- proper type
+
+      if (text && text.trim() !== '') {
+        query += ` WHERE filename LIKE ?`
+        params.push(`%${text}%`)
+      }
+
+      query += ` LIMIT 20 OFFSET ?`
+      params.push(offset)
+
+      const stmt = this.dbService.db.prepare<(string | number)[], Document>(query)
+      const rows = stmt.all(...params)
+
       return { success: true, data: rows }
     } catch {
       return { success: false }
@@ -104,6 +120,25 @@ class DocumentService {
       `)
       stmt.run(title, id)
       return { success: true }
+    } catch {
+      return { success: false }
+    }
+  }
+
+  getAllDocumentCount(text?: string): getDocumentCountType {
+    try {
+      let query = `SELECT count(*) as total_file FROM documents`
+      const params: string[] = []
+
+      if (text) {
+        query += ` WHERE filename LIKE ?`
+        params.push(`%${text}%`)
+      }
+
+      const stmtFile = this.dbService.db.prepare(query)
+      const data = stmtFile.get(...params) as { total_file: number }
+
+      return { success: true, data: data.total_file }
     } catch {
       return { success: false }
     }

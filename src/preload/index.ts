@@ -27,14 +27,17 @@ const api = {
     selectFile: (): Promise<SelectFile> => ipcRenderer.invoke('document:select-files'),
     importFile: (documents: ImportFileType[], category: string, tags: string) =>
       ipcRenderer.invoke('document:import', documents, category, tags),
-    getAll: (): Promise<GetAllType> => ipcRenderer.invoke('document:get-all'),
+    getAll: (offset: number, text: string): Promise<GetAllType> =>
+      ipcRenderer.invoke('document:get-all', offset, text),
     getRecent: (): Promise<GetRecentType> => ipcRenderer.invoke('document:get-recentFiles'),
     open: (filePath: string): Promise<OpenDocumentType> =>
       ipcRenderer.invoke('document:open', filePath),
     delete: (id: number): Promise<DeleteType> => ipcRenderer.invoke('document:delete-file', id),
     stats: (): Promise<GetStatsType> => ipcRenderer.invoke('document:get-stats'),
     editDocumentTitle: (id: number, title: string): Promise<editDocumentTitleType> =>
-      ipcRenderer.invoke('document:edit-title', id, title)
+      ipcRenderer.invoke('document:edit-title', id, title),
+    getDocumentCount: (text: string): Promise<void> =>
+      ipcRenderer.invoke('document:count-all', text)
   },
 
   //=========================== Folders ============================//
