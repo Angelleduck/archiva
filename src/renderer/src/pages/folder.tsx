@@ -16,8 +16,17 @@ export default function Folder(): React.JSX.Element {
 
   const navigate = useNavigate()
   const { id } = useParams()
-  const { folderDocuments, folder, subfolders, refetch, isLoading, setSubfolders } =
-    useFolderData(id)
+  const {
+    folderDocuments,
+    folder,
+    subfolders,
+    refetch,
+    isLoading,
+    setSubfolders,
+    page,
+    totalPages,
+    handlePageUpdate
+  } = useFolderData(id)
 
   const { filteredSubfolders, debouncedSetSearchTerm } = useFolderSearch(subfolders)
 
@@ -31,10 +40,7 @@ export default function Folder(): React.JSX.Element {
     refetch()
   }
 
-  const handleRemoveDocument = async (
-    folderId: string | undefined,
-    documentId: string
-  ): Promise<void> => {
+  const handleRemoveDocument = async (folderId: number, documentId: number): Promise<void> => {
     await window.api.folder.removeDocument(folderId, documentId)
     handleTrigger()
   }
@@ -56,7 +62,7 @@ export default function Folder(): React.JSX.Element {
       {showDocumentModal && (
         <DocumentModal
           onCloseModal={handleCloseDocumentModal}
-          folderId={id}
+          folderId={Number(id)}
           folderDocuments={folderDocuments}
           onTrigger={handleTrigger}
         />
@@ -106,11 +112,14 @@ export default function Folder(): React.JSX.Element {
           subfolders={filteredSubfolders}
           handleSetShowFolderModal={handleSetShowFolderModal}
           setSubfolders={setSubfolders}
+          page={page}
+          totalPages={totalPages}
+          handlePageUpdate={handlePageUpdate}
         />
 
         <DocumentSection
           folderDocuments={folderDocuments}
-          folderId={id}
+          folderId={Number(id)}
           handleRemoveDocument={handleRemoveDocument}
         />
       </div>

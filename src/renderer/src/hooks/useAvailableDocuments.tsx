@@ -8,24 +8,24 @@ interface useAvailableDocumentsType {
 }
 
 export function useAvailableDocuments(
-  folderDocuments: FolderDocumentsType[]
+  folderDocuments: FolderDocumentsType[],
+  folderId: number
 ): useAvailableDocumentsType {
   const [documentsNotInFolder, setDocumentsNotInFolder] = useState<Document[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     async function getAlldocument(): Promise<void> {
-      const allDocuments = await window.api.document.getAll()
+      const result = await window.api.folder.getDocumentsNotInFolder(folderId)
 
-      if (allDocuments.success) {
-        const folderIds = new Set(folderDocuments.map((fd) => fd.id))
-        const result = allDocuments.data.filter((doc) => !folderIds.has(doc.id))
-        setDocumentsNotInFolder(result)
+      if (result.success) {
+        console.log(result.data)
+        setDocumentsNotInFolder(result.data)
       }
       setIsLoading(false)
     }
     getAlldocument()
-  }, [folderDocuments])
+  }, [folderDocuments, folderId])
 
   return { documentsNotInFolder, isLoading }
 }

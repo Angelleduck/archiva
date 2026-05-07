@@ -13,7 +13,6 @@ const FolderItem = memo(function FolderItem({
   folder,
   handleSelectFolder
 }: FolderItemProps): React.JSX.Element {
-  console.log('trigger page folder item')
   const navigate = useNavigate()
   return (
     <div

@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createHashRouter, RouterProvider } from 'react-router-dom'
 import RootLayout from './pages/root'
 import Home from './pages/home'
 import Import from './pages/import'
@@ -7,7 +7,7 @@ import Folder from './pages/folder'
 import Document from './pages/document'
 import { Toaster } from 'react-hot-toast'
 
-const router = createBrowserRouter([
+const router = createHashRouter([
   {
     path: '/',
     element: <RootLayout />,

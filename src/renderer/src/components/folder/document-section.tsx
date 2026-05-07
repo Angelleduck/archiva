@@ -8,8 +8,8 @@ import toast from 'react-hot-toast'
 
 interface DocumentSectionProps {
   folderDocuments: FolderDocumentsType[]
-  handleRemoveDocument: (folderId: string | undefined, documentId: string) => Promise<void>
-  folderId: string | undefined
+  handleRemoveDocument: (folderId: number, documentId: number) => Promise<void>
+  folderId: number
 }
 
 export function DocumentSection({
@@ -26,7 +26,6 @@ export function DocumentSection({
     }
   }
 
-  console.log('the doc section')
   return (
     <div
       className="p-5 border border-border-primary rounded-lg bg-white

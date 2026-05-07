@@ -6,20 +6,27 @@ import { useCallback, useState } from 'react'
 import { EditTitleModal } from './modal/edit-title'
 import { FolderCard } from '../subfolder/folder-card'
 import { useNavigate } from 'react-router-dom'
+import { Paginate } from '../document/paginate'
 
 interface SubfoldersProps {
   subfolders: FolderType[]
   handleSetShowFolderModal: () => void
   setSubfolders: React.Dispatch<React.SetStateAction<FolderType[]>>
+  page: number
+  totalPages: number
+  handlePageUpdate: (arg: number) => void
 }
 
 export function Subfolders({
   subfolders,
   handleSetShowFolderModal,
-  setSubfolders
+  setSubfolders,
+  page,
+  totalPages,
+  handlePageUpdate
 }: SubfoldersProps): React.JSX.Element {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [showEdidtTitleModal, setShowEditTitleModal] = useState(false)
+  const [showEditTitleModal, setShowEditTitleModal] = useState(false)
   const [folderObject, setfolderObject] = useState({ name: '', id: 0 })
 
   const handleSelectFolder = useCallback((folder: Folder, purpose: 'delete' | 'edit'): void => {
@@ -54,8 +61,6 @@ export function Subfolders({
     setShowDeleteModal(false)
   }
 
-  console.log('re-ren-suby')
-
   const navigate = useNavigate()
 
   const handleNavigate = useCallback(
@@ -67,7 +72,7 @@ export function Subfolders({
 
   return (
     <>
-      {showEdidtTitleModal && (
+      {showEditTitleModal && (
         <EditTitleModal
           onCloseModal={handleCloseEditTitleModal}
           name={folderObject.name}
@@ -84,25 +89,28 @@ export function Subfolders({
           id={folderObject.id}
         />
       )}
-      <div className="grid grid-cols-4 gap-x-6 gap-y-6 mb-4">
-        {subfolders.map((folder) => (
-          <FolderCard
-            folder={folder}
-            handleSelectFolder={handleSelectFolder}
-            onNavigate={handleNavigate}
-            key={folder.id}
-          />
-        ))}
-        <div
-          onClick={handleSetShowFolderModal}
-          className="p-5 border border-border-primary rounded-lg bg-white 
+      <div>
+        <div className="grid grid-cols-4 gap-x-6 gap-y-6 mb-4">
+          {subfolders.map((folder) => (
+            <FolderCard
+              folder={folder}
+              handleSelectFolder={handleSelectFolder}
+              onNavigate={handleNavigate}
+              key={folder.id}
+            />
+          ))}
+          <div
+            onClick={handleSetShowFolderModal}
+            className="p-5 border border-border-primary rounded-lg bg-white 
         hover:shadow-md cursor-pointer transition-all duration-200 flex items-center justify-center"
-        >
-          <div className="flex flex-col gap-1 items-center">
-            <CirclePlus size={56} className="text-blue-400" />
-            <p>Nouveau dossier</p>
+          >
+            <div className="flex flex-col gap-1 items-center">
+              <CirclePlus size={56} className="text-blue-400" />
+              <p>Nouveau dossier</p>
+            </div>
           </div>
         </div>
+        <Paginate onPageUpdate={handlePageUpdate} page={page} totalPages={totalPages} />
       </div>
     </>
   )

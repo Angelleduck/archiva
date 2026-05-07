@@ -160,15 +160,21 @@ app.whenReady().then(() => {
     }
   )
 
-  ipcMain.handle('folder:get-rootFolders', async (): Promise<GetFoldersType> => {
-    return folderService.getRootFolders()
-  })
+  ipcMain.handle(
+    'folder:get-rootFolders',
+    async (_event, page: number): Promise<GetFoldersType> => {
+      return folderService.getRootFolders(page)
+    }
+  )
   ipcMain.handle('folder:get', async (_event, id: string): Promise<GetFolderType> => {
     return folderService.getFolder(id)
   })
-  ipcMain.handle('folder:getSubfolders', async (_event, id: string): Promise<GetFoldersType> => {
-    return folderService.getSubfolders(id)
-  })
+  ipcMain.handle(
+    'folder:getSubfolders',
+    async (_event, id: string, page: number): Promise<GetFoldersType> => {
+      return folderService.getSubfolders(id, page)
+    }
+  )
   ipcMain.handle(
     'folder:get-document',
     async (_event, id: string): Promise<GetFolderDocumentsType> => {
@@ -186,13 +192,23 @@ app.whenReady().then(() => {
   )
   ipcMain.handle(
     'folder:remove-document',
-    async (_event, folderId: string, documentId: string): Promise<RemoveDocumentType> => {
+    async (_event, folderId: number, documentId: number): Promise<RemoveDocumentType> => {
       return folderService.removeDocument(folderId, documentId)
     }
   )
 
   ipcMain.handle('folder:edit-title', async (_event, folderId: number, title: string) => {
     return folderService.editFolderTitle(folderId, title)
+  })
+
+  ipcMain.handle('folder:count-all', async () => {
+    return folderService.getAllFolderCount()
+  })
+  ipcMain.handle('folder:subfolder-CountAll', async () => {
+    return folderService.getAllSubFolderCount()
+  })
+  ipcMain.handle('folder:get-documentNotInFolder', async (_event, id: number) => {
+    return folderService.getDocumentsNotInFoler(id)
   })
 
   createWindow()

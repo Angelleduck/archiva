@@ -9,7 +9,7 @@ import type { FolderDocuments as FolderDocumentsType } from 'src/main/services/f
 interface DocumentModalProps {
   onCloseModal: () => void
   onTrigger: () => void
-  folderId: string | undefined
+  folderId: number
   folderDocuments: FolderDocumentsType[]
 }
 
@@ -20,7 +20,7 @@ export function DocumentModal({
   folderDocuments
 }: DocumentModalProps): React.JSX.Element {
   const [searchTerm, setSearchTerm] = useState('')
-  const { documentsNotInFolder, isLoading } = useAvailableDocuments(folderDocuments)
+  const { documentsNotInFolder, isLoading } = useAvailableDocuments(folderDocuments, folderId)
 
   const handleAddDocument = async (documentId: number): Promise<void> => {
     await window.api.folder.addDocument(folderId, documentId)

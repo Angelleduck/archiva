@@ -42,9 +42,7 @@ export function Paginate({ page, totalPages = 8, onPageUpdate }: PaginateProps):
         {/* Page numbers */}
         {pages.map((p) => (
           <PaginationItem key={p} onClick={() => onPageUpdate(p)}>
-            <PaginationLink href="#" isActive={p === page}>
-              {p}
-            </PaginationLink>
+            <PaginationLink isActive={p === page}>{p}</PaginationLink>
           </PaginationItem>
         ))}
 

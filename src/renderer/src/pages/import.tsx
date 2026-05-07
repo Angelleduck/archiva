@@ -3,7 +3,10 @@ import { formatSize } from '@renderer/helper/utils'
 import { Download, File, Trash2, X } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-import { Document as DocumentType, SelectedFiles } from 'src/main/services/document/document.type'
+import type {
+  Document as DocumentType,
+  SelectedFiles
+} from 'src/main/services/document/document.type'
 
 export default function Import(): React.JSX.Element {
   const [documents, setDocuments] = useState<SelectedFiles[]>([])

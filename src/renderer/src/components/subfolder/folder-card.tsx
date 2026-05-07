@@ -15,7 +15,6 @@ const FolderCard = memo(function FolderCard({
   handleSelectFolder,
   onNavigate
 }: FolderCardProps): React.JSX.Element {
-  console.log('trigger folder card')
   return (
     <div
       onClick={() => onNavigate(folder.id)}

@@ -3,6 +3,7 @@ import type {
   DeleteType,
   editDocumentTitleType,
   GetAllType,
+  getDocumentCountType,
   GetRecentType,
   GetStatsType,
   ImportFileType,
@@ -14,6 +15,8 @@ import type {
   CreateFolderType,
   CreateSubfolderType,
   DeleteFolderType,
+  GetDocumentsNotInFolderType,
+  getFolderCountType,
   GetFolderDocumentsType,
   GetFoldersType,
   GetFolderType,
@@ -27,8 +30,8 @@ const api = {
     selectFile: (): Promise<SelectFile> => ipcRenderer.invoke('document:select-files'),
     importFile: (documents: ImportFileType[], category: string, tags: string) =>
       ipcRenderer.invoke('document:import', documents, category, tags),
-    getAll: (offset: number, text: string): Promise<GetAllType> =>
-      ipcRenderer.invoke('document:get-all', offset, text),
+    getAll: (page: number, text: string): Promise<GetAllType> =>
+      ipcRenderer.invoke('document:get-all', page, text),
     getRecent: (): Promise<GetRecentType> => ipcRenderer.invoke('document:get-recentFiles'),
     open: (filePath: string): Promise<OpenDocumentType> =>
       ipcRenderer.invoke('document:open', filePath),
@@ -36,16 +39,17 @@ const api = {
     stats: (): Promise<GetStatsType> => ipcRenderer.invoke('document:get-stats'),
     editDocumentTitle: (id: number, title: string): Promise<editDocumentTitleType> =>
       ipcRenderer.invoke('document:edit-title', id, title),
-    getDocumentCount: (text: string): Promise<void> =>
+    getDocumentCount: (text: string): Promise<getDocumentCountType> =>
       ipcRenderer.invoke('document:count-all', text)
   },
 
   //=========================== Folders ============================//
   folder: {
-    getRootFolders: (): Promise<GetFoldersType> => ipcRenderer.invoke('folder:get-rootFolders'),
+    getRootFolders: (page: number): Promise<GetFoldersType> =>
+      ipcRenderer.invoke('folder:get-rootFolders', page),
     get: (id: string): Promise<GetFolderType> => ipcRenderer.invoke('folder:get', id),
-    getSubfolders: (id: string): Promise<GetFoldersType> =>
-      ipcRenderer.invoke('folder:getSubfolders', id),
+    getSubfolders: (id: string, page: number): Promise<GetFoldersType> =>
+      ipcRenderer.invoke('folder:getSubfolders', id, page),
     getDocuments: (id: string): Promise<GetFolderDocumentsType> =>
       ipcRenderer.invoke('folder:get-document', id),
     editFolderTitle: (id: number, title: string) =>
@@ -57,7 +61,13 @@ const api = {
     addDocument: (folderId: string, documentId: string): Promise<AddDocumentType> =>
       ipcRenderer.invoke('folder:add-document', folderId, documentId),
     removeDocument: (folderId: string, documentId: string): Promise<RemoveDocumentType> =>
-      ipcRenderer.invoke('folder:remove-document', folderId, documentId)
+      ipcRenderer.invoke('folder:remove-document', folderId, documentId),
+    getFolderCount: (text: string): Promise<getFolderCountType> =>
+      ipcRenderer.invoke('folder:count-all', text),
+    getSubfolderCount: (): Promise<getFolderCountType> =>
+      ipcRenderer.invoke('folder:subfolder-CountAll'),
+    getDocumentsNotInFolder: (id: number): Promise<GetDocumentsNotInFolderType> =>
+      ipcRenderer.invoke('folder:get-documentNotInFolder', id)
   }
 }
 

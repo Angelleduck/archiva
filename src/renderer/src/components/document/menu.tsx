@@ -1,6 +1,6 @@
 import { EllipsisVertical, SquarePen, Trash2 } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
-import { Document } from 'src/main/services/document/document.type'
+import type { Document } from 'src/main/services/document/document.type'
 
 interface MenuProps {
   onSelectDocument: (document: Document, purpose: 'delete' | 'edit') => void

@@ -26,8 +26,8 @@ function PaginationContent({ className, ...props }: React.ComponentProps<'ul'>):
   )
 }
 
-function PaginationItem({ ...props }: React.ComponentProps<'li'>): React.JSX.Element {
-  return <li data-slot="pagination-item" {...props} />
+function PaginationItem({ className, ...props }: React.ComponentProps<'li'>): React.JSX.Element {
+  return <li data-slot="pagination-item" className={cn('cursor-pointer', className)} {...props} />
 }
 
 type PaginationLinkProps = {
