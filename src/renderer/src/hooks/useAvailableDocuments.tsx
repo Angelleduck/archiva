@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import type { FolderDocuments as FolderDocumentsType } from 'src/main/services/folder/folder.type'
 import type { Document } from 'src/main/services/document/document.type'
 
 interface useAvailableDocumentsType {
@@ -7,10 +6,7 @@ interface useAvailableDocumentsType {
   isLoading: boolean
 }
 
-export function useAvailableDocuments(
-  folderDocuments: FolderDocumentsType[],
-  folderId: number
-): useAvailableDocumentsType {
+export function useAvailableDocuments(folderId: number): useAvailableDocumentsType {
   const [documentsNotInFolder, setDocumentsNotInFolder] = useState<Document[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
@@ -25,7 +21,7 @@ export function useAvailableDocuments(
       setIsLoading(false)
     }
     getAlldocument()
-  }, [folderDocuments, folderId])
+  }, [folderId])
 
   return { documentsNotInFolder, isLoading }
 }

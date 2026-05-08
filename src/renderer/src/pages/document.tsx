@@ -99,7 +99,7 @@ export default function Document(): React.JSX.Element {
     setPage(selectedPage)
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>): void => {
     e.preventDefault()
     setPage(1)
     setTrigger((prev) => prev + 1)

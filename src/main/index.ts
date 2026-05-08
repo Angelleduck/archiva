@@ -171,8 +171,8 @@ app.whenReady().then(() => {
   })
   ipcMain.handle(
     'folder:getSubfolders',
-    async (_event, id: string, page: number): Promise<GetFoldersType> => {
-      return folderService.getSubfolders(id, page)
+    async (_event, id: string, page: number, text: string): Promise<GetFoldersType> => {
+      return folderService.getSubfolders(id, page, text)
     }
   )
   ipcMain.handle(
@@ -204,9 +204,12 @@ app.whenReady().then(() => {
   ipcMain.handle('folder:count-all', async () => {
     return folderService.getAllFolderCount()
   })
-  ipcMain.handle('folder:subfolder-CountAll', async () => {
-    return folderService.getAllSubFolderCount()
-  })
+  ipcMain.handle(
+    'folder:subfolder-CountAll',
+    async (_event, parentFolderId: number, text: string) => {
+      return folderService.getAllSubFolderCount(parentFolderId, text)
+    }
+  )
   ipcMain.handle('folder:get-documentNotInFolder', async (_event, id: number) => {
     return folderService.getDocumentsNotInFoler(id)
   })

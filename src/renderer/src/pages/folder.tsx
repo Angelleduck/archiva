@@ -5,7 +5,6 @@ import { SubfolderModal } from '@renderer/components/folder/modal/add-subfolder'
 import { Subfolders } from '@renderer/components/folder/subfolders'
 import { Glass } from '@renderer/components/svg/glass'
 import { useFolderData } from '@renderer/hooks/useFolderData'
-import { useFolderSearch } from '@renderer/hooks/useFolderSearch'
 import { ChevronLeft, FolderIcon, Plus } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -16,6 +15,9 @@ export default function Folder(): React.JSX.Element {
 
   const navigate = useNavigate()
   const { id } = useParams()
+
+  // Here I'm using
+  const [searchTerm, setSearchTerm] = useState('')
   const {
     folderDocuments,
     folder,
@@ -25,10 +27,9 @@ export default function Folder(): React.JSX.Element {
     setSubfolders,
     page,
     totalPages,
-    handlePageUpdate
-  } = useFolderData(id)
-
-  const { filteredSubfolders, debouncedSetSearchTerm } = useFolderSearch(subfolders)
+    handlePageUpdate,
+    setPage
+  } = useFolderData(id, searchTerm)
 
   const handleCloseDocumentModal = (): void => {
     setShowDocumentModal(false)
@@ -48,6 +49,12 @@ export default function Folder(): React.JSX.Element {
     setShowFolderModal(true)
   }, [])
 
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>): void => {
+    e.preventDefault()
+    setPage(1)
+    refetch()
+  }
+
   if (isLoading) return <Loader />
 
   return (
@@ -63,7 +70,6 @@ export default function Folder(): React.JSX.Element {
         <DocumentModal
           onCloseModal={handleCloseDocumentModal}
           folderId={Number(id)}
-          folderDocuments={folderDocuments}
           onTrigger={handleTrigger}
         />
       )}
@@ -97,19 +103,23 @@ export default function Folder(): React.JSX.Element {
         </div>
 
         <div className="mb-4">
-          <div className="px-3 border-2 border-border-primary rounded-lg bg-white relative flex items-center gap-3 focus-within:border-blue-300 mb-2">
+          <form
+            onSubmit={handleSubmit}
+            className="px-3 border-2 border-border-primary rounded-lg bg-white relative flex
+            items-center gap-3 focus-within:border-blue-300 mb-2"
+          >
             <Glass className="w-5 h-5 text-gray-400" />
             <input
-              onChange={(e) => debouncedSetSearchTerm(e.target.value.toLowerCase())}
+              onChange={(e) => setSearchTerm(e.target.value)}
               type="text"
               placeholder="Rechercher par nom"
               className="w-full py-3"
             />
-          </div>
+          </form>
         </div>
 
         <Subfolders
-          subfolders={filteredSubfolders}
+          subfolders={subfolders}
           handleSetShowFolderModal={handleSetShowFolderModal}
           setSubfolders={setSubfolders}
           page={page}

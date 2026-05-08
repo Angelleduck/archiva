@@ -89,8 +89,18 @@ export function Subfolders({
           id={folderObject.id}
         />
       )}
-      <div>
+      <div className="mb-4">
         <div className="grid grid-cols-4 gap-x-6 gap-y-6 mb-4">
+          <div
+            onClick={handleSetShowFolderModal}
+            className="p-5 border border-border-primary rounded-lg bg-white hover:shadow-md 
+           cursor-pointer transition-all duration-200 flex items-center justify-center"
+          >
+            <div className="flex flex-col gap-1 items-center">
+              <CirclePlus size={56} className="text-blue-400" />
+              <p>Nouveau dossier</p>
+            </div>
+          </div>
           {subfolders.map((folder) => (
             <FolderCard
               folder={folder}
@@ -99,16 +109,6 @@ export function Subfolders({
               key={folder.id}
             />
           ))}
-          <div
-            onClick={handleSetShowFolderModal}
-            className="p-5 border border-border-primary rounded-lg bg-white 
-        hover:shadow-md cursor-pointer transition-all duration-200 flex items-center justify-center"
-          >
-            <div className="flex flex-col gap-1 items-center">
-              <CirclePlus size={56} className="text-blue-400" />
-              <p>Nouveau dossier</p>
-            </div>
-          </div>
         </div>
         <Paginate onPageUpdate={handlePageUpdate} page={page} totalPages={totalPages} />
       </div>

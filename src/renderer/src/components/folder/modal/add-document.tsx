@@ -4,23 +4,20 @@ import { useAvailableDocuments } from '@renderer/hooks/useAvailableDocuments'
 import { FolderIcon, Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import type { Document as DocumentType } from 'src/main/services/document/document.type'
-import type { FolderDocuments as FolderDocumentsType } from 'src/main/services/folder/folder.type'
 
 interface DocumentModalProps {
   onCloseModal: () => void
   onTrigger: () => void
   folderId: number
-  folderDocuments: FolderDocumentsType[]
 }
 
 export function DocumentModal({
   onCloseModal,
   onTrigger,
-  folderId,
-  folderDocuments
+  folderId
 }: DocumentModalProps): React.JSX.Element {
   const [searchTerm, setSearchTerm] = useState('')
-  const { documentsNotInFolder, isLoading } = useAvailableDocuments(folderDocuments, folderId)
+  const { documentsNotInFolder, isLoading } = useAvailableDocuments(folderId)
 
   const handleAddDocument = async (documentId: number): Promise<void> => {
     await window.api.folder.addDocument(folderId, documentId)

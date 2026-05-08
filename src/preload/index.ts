@@ -48,8 +48,8 @@ const api = {
     getRootFolders: (page: number): Promise<GetFoldersType> =>
       ipcRenderer.invoke('folder:get-rootFolders', page),
     get: (id: string): Promise<GetFolderType> => ipcRenderer.invoke('folder:get', id),
-    getSubfolders: (id: string, page: number): Promise<GetFoldersType> =>
-      ipcRenderer.invoke('folder:getSubfolders', id, page),
+    getSubfolders: (id: string, page: number, text: string): Promise<GetFoldersType> =>
+      ipcRenderer.invoke('folder:getSubfolders', id, page, text),
     getDocuments: (id: string): Promise<GetFolderDocumentsType> =>
       ipcRenderer.invoke('folder:get-document', id),
     editFolderTitle: (id: number, title: string) =>
@@ -64,8 +64,8 @@ const api = {
       ipcRenderer.invoke('folder:remove-document', folderId, documentId),
     getFolderCount: (text: string): Promise<getFolderCountType> =>
       ipcRenderer.invoke('folder:count-all', text),
-    getSubfolderCount: (): Promise<getFolderCountType> =>
-      ipcRenderer.invoke('folder:subfolder-CountAll'),
+    getSubfolderCount: (parentFolderId: number, text: string): Promise<getFolderCountType> =>
+      ipcRenderer.invoke('folder:subfolder-CountAll', parentFolderId, text),
     getDocumentsNotInFolder: (id: number): Promise<GetDocumentsNotInFolderType> =>
       ipcRenderer.invoke('folder:get-documentNotInFolder', id)
   }

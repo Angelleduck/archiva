@@ -85,22 +85,35 @@ class FolderService {
     }
   }
 
-  getSubfolders(id: string, arg: number): GetFoldersType {
-    const page = arg < 2 ? 1 : arg
-    const offset = 20 * (page - 1)
-    try {
-      const stmt = this.dbService.db.prepare<(string | number)[], Folder>(`
-        SELECT
-          id,
-          name,
-          created_at
-        FROM folders
-        WHERE parent_id = ?
-        LIMIT 20 OFFSET ?;
-        `)
+  getSubfolders(id: string, arg = 1, text: string): GetFoldersType {
+    const page = Math.max(1, arg)
+    const offset = 11 * (page - 1)
 
-      const row = stmt.all(id, offset)
-      return { success: true, data: row }
+    try {
+      let query = `
+      SELECT
+        id,
+        name,
+        created_at
+      FROM folders
+      WHERE parent_id = ?
+     `
+      const params: (string | number)[] = [id]
+
+      if (text.trim() !== '') {
+        query += ` AND name LIKE ?`
+        params.push(`%${text}%`)
+      }
+
+      query += `
+      ORDER BY created_at DESC
+      LIMIT 11 OFFSET ?
+      `
+      params.push(offset)
+      const stmt = this.dbService.db.prepare<(string | number)[], Folder>(query)
+      const rows = stmt.all(...params)
+
+      return { success: true, data: rows }
     } catch {
       return { success: false }
     }
@@ -210,13 +223,23 @@ class FolderService {
       return { success: false }
     }
   }
-  getAllSubFolderCount(): getFolderCountType {
+
+  getAllSubFolderCount(parentFolderId: number, text?: string): getFolderCountType {
     try {
-      const stmtFolder = this.dbService.db.prepare(`
-        SELECT count(*) as total_folder FROM folders
-        WHERE parent_id IS NOT NULL
-        `)
-      const data = stmtFolder.get() as { total_folder: number }
+      let query = `
+      SELECT COUNT(*) as total_folder
+      FROM folders
+      WHERE parent_id = ?
+      `
+      const params: (number | string)[] = [parentFolderId]
+      if (text?.trim()) {
+        query += ` AND name LIKE ?`
+        params.push(`%${text.trim()}%`)
+      }
+      const stmtFolder = this.dbService.db.prepare(query)
+      const data = stmtFolder.get(...params) as {
+        total_folder: number
+      }
 
       return { success: true, data: data.total_folder }
     } catch {

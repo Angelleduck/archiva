@@ -14,9 +14,10 @@ interface useFolderDataType {
   page: number
   handlePageUpdate: (arg: number) => void
   totalPages: number
+  setPage: React.Dispatch<React.SetStateAction<number>>
 }
 
-export function useFolderData(folderId: string | undefined): useFolderDataType {
+export function useFolderData(folderId: string | undefined, text: string): useFolderDataType {
   const [folderDocuments, setFolderDocuments] = useState<FolderDocumentsType[]>([])
   const [folder, setFolder] = useState<FolderType>()
   const [subfolders, setSubfolders] = useState<FolderType[]>([])
@@ -31,13 +32,13 @@ export function useFolderData(folderId: string | undefined): useFolderDataType {
       return new Promise((resolve) => setTimeout(resolve, 150))
     }
 
-    async function getFolderDocuments(folderId: string | undefined): Promise<void> {
+    async function getFolderDocuments(folderId: string | undefined, text: string): Promise<void> {
       if (!folderId) return
       const [documentResult, folderResult, subfolders, allPages] = await Promise.all([
         window.api.folder.getDocuments(folderId),
         window.api.folder.get(folderId),
-        window.api.folder.getSubfolders(folderId, page),
-        window.api.folder.getSubfolderCount(),
+        window.api.folder.getSubfolders(folderId, page, text),
+        window.api.folder.getSubfolderCount(Number(folderId), text),
         sleep()
       ])
 
@@ -49,11 +50,11 @@ export function useFolderData(folderId: string | undefined): useFolderDataType {
 
       if (allPages.success) {
         console.log(allPages.data)
-        setTotalPages(Math.ceil(allPages.data / 20))
+        setTotalPages(Math.ceil(allPages.data / 11))
       }
       setIsLoading(false)
     }
-    getFolderDocuments(folderId)
+    getFolderDocuments(folderId, text)
   }, [folderId, trigger, page])
 
   const handlePageUpdate = (selectedPage: number): void => {
@@ -73,6 +74,7 @@ export function useFolderData(folderId: string | undefined): useFolderDataType {
     setSubfolders,
     page,
     handlePageUpdate,
-    totalPages
+    totalPages,
+    setPage
   }
 }
