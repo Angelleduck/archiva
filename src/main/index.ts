@@ -210,8 +210,14 @@ app.whenReady().then(() => {
       return folderService.getAllSubFolderCount(parentFolderId, text)
     }
   )
-  ipcMain.handle('folder:get-documentNotInFolder', async (_event, id: number) => {
-    return folderService.getDocumentsNotInFoler(id)
+  ipcMain.handle(
+    'folder:get-documentNotInFolder',
+    async (_event, id: number, arg: number, text: string) => {
+      return folderService.getDocumentsNotInFoler(id, arg, text)
+    }
+  )
+  ipcMain.handle('folder:countDocumentNotInFolder', async (_event, id: number, text: string) => {
+    return folderService.countDocumentsNotInFoler(id, text)
   })
 
   createWindow()

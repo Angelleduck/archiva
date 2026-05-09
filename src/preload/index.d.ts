@@ -12,6 +12,7 @@ import type {
 } from '../main/services/document/document.type'
 import type {
   AddDocumentType,
+  countDocumentNotInFolderType,
   CreateFolderType,
   CreateSubfolderType,
   DeleteFolderType,
@@ -52,7 +53,15 @@ declare global {
         removeDocument: (folderId: number, documentId: number) => Promise<RemoveDocumentType>
         getFolderCount: () => Promise<getFolderCountType>
         getSubfolderCount: (id: number, text: string) => Promise<getFolderCountType>
-        getDocumentsNotInFolder: (folderId: number) => Promise<GetDocumentsNotInFolderType>
+        getDocumentsNotInFolder: (
+          folderId: number,
+          arg: number,
+          text: string
+        ) => Promise<GetDocumentsNotInFolderType>
+        countDocumentNotInFolder: (
+          id: number,
+          text: string
+        ) => Promise<countDocumentNotInFolderType>
       }
     }
   }

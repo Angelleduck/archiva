@@ -12,6 +12,7 @@ import type {
 } from '../main/services/document/document.type'
 import type {
   AddDocumentType,
+  countDocumentNotInFolderType,
   CreateFolderType,
   CreateSubfolderType,
   DeleteFolderType,
@@ -66,8 +67,15 @@ const api = {
       ipcRenderer.invoke('folder:count-all', text),
     getSubfolderCount: (parentFolderId: number, text: string): Promise<getFolderCountType> =>
       ipcRenderer.invoke('folder:subfolder-CountAll', parentFolderId, text),
-    getDocumentsNotInFolder: (id: number): Promise<GetDocumentsNotInFolderType> =>
-      ipcRenderer.invoke('folder:get-documentNotInFolder', id)
+    getDocumentsNotInFolder: (
+      id: number,
+      arg: number,
+      text: string
+    ): Promise<GetDocumentsNotInFolderType> =>
+      ipcRenderer.invoke('folder:get-documentNotInFolder', id, arg, text),
+
+    countDocumentNotInFolder: (id: number, text: string): Promise<countDocumentNotInFolderType> =>
+      ipcRenderer.invoke('folder:countDocumentNotInFolder', id, text)
   }
 }
 

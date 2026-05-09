@@ -35,7 +35,6 @@ export default function Folders(): React.JSX.Element {
         setFolders(result.data)
       }
       if (allPages.success) {
-        console.log(allPages.data)
         setTotalPages(Math.ceil(allPages.data / 20))
       }
       setIsLoading(false)

@@ -1,8 +1,8 @@
+import { Paginate } from '@renderer/components/document/paginate'
 import { Glass } from '@renderer/components/svg/glass'
-import { debounce } from '@renderer/helper/utils'
 import { useAvailableDocuments } from '@renderer/hooks/useAvailableDocuments'
-import { FolderIcon, Plus } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { FolderIcon, Plus, X } from 'lucide-react'
+import { useState } from 'react'
 import type { Document as DocumentType } from 'src/main/services/document/document.type'
 
 interface DocumentModalProps {
@@ -17,7 +17,8 @@ export function DocumentModal({
   folderId
 }: DocumentModalProps): React.JSX.Element {
   const [searchTerm, setSearchTerm] = useState('')
-  const { documentsNotInFolder, isLoading } = useAvailableDocuments(folderId)
+  const { documentsNotInFolder, isLoading, handlePageUpdate, page, totalPages, setPage, refetch } =
+    useAvailableDocuments(folderId, searchTerm)
 
   const handleAddDocument = async (documentId: number): Promise<void> => {
     await window.api.folder.addDocument(folderId, documentId)
@@ -25,56 +26,56 @@ export function DocumentModal({
     onCloseModal()
   }
 
-  const handleSearch = (value: string): void => {
-    setSearchTerm(value.toLowerCase())
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>): void => {
+    e.preventDefault()
+    setPage(1)
+    refetch()
   }
-
-  const filteredDocuments = useMemo(() => {
-    return documentsNotInFolder.filter((doc) => doc.filename.toLowerCase().includes(searchTerm))
-  }, [documentsNotInFolder, searchTerm])
-
-  const debouncedHandleSearch = useMemo(() => debounce(handleSearch, 600), [])
 
   return (
     <div className="inset-0 fixed bg-black/50 z-10 flex justify-center items-center">
       <div className="basis-2xl bg-white p-6 rounded-lg">
-        <h3 className="font-bold text-xl mb-2">Ajouter un document</h3>
+        <div className="mb-2 flex justify-between items-center">
+          <h3 className="font-bold text-xl">Ajouter un document</h3>
+          <button
+            type="button"
+            onClick={onCloseModal}
+            className="border border-border-primary
+          hover:bg-gray-50 transition-colors rounded-lg p-2 cursor-pointer"
+          >
+            <X />
+          </button>
+        </div>
 
-        <div
+        <form
+          onSubmit={handleSubmit}
           className="px-3 border-2 border-border-primary rounded-lg bg-white relative 
           flex items-center gap-3 focus-within:border-blue-300 mb-2"
         >
           <Glass className="w-5 h-5 text-gray-400" />
           <input
-            onChange={(e) => debouncedHandleSearch(e.target.value.toLowerCase())}
+            onChange={(e) => setSearchTerm(e.target.value)}
             type="text"
             placeholder="Rechercher par nom"
             className="w-full py-3"
           />
-        </div>
+        </form>
 
         <div className="mb-4 space-y-2 max-h-100 overflow-y-auto">
           {isLoading ? (
             <p className="text-center text-gray-secondary my-12">Chargement</p>
-          ) : filteredDocuments.length === 0 ? (
+          ) : documentsNotInFolder.length === 0 ? (
             <p className="text-center text-gray-secondary my-12">
               Tous vos documents sont déjà dans ce dossier
             </p>
           ) : (
-            filteredDocuments.map((doc) => (
+            documentsNotInFolder.map((doc) => (
               <Document key={doc.id} doc={doc} onAdd={handleAddDocument} />
             ))
           )}
         </div>
 
-        <button
-          type="button"
-          onClick={onCloseModal}
-          className="flex-1 border-2 border-border-primary w-full 
-          hover:bg-gray-50 transition-colors rounded-lg py-2 cursor-pointer"
-        >
-          Annuler
-        </button>
+        <Paginate onPageUpdate={handlePageUpdate} page={page} totalPages={totalPages} />
       </div>
     </div>
   )

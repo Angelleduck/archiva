@@ -1,6 +1,7 @@
 import DatabaseService from '../../db/database'
 import type {
   AddDocumentType,
+  countDocumentNotInFolderType,
   CreateFolderType,
   CreateSubfolderType,
   DeleteFolderType,
@@ -140,17 +141,30 @@ class FolderService {
     }
   }
 
-  getDocumentsNotInFoler(id: number): GetDocumentsNotInFolderType {
+  getDocumentsNotInFoler(folderId: number, arg: number, text: string): GetDocumentsNotInFolderType {
     try {
-      const stmt = this.dbService.db.prepare<number, FolderDocuments>(`
+      const page = Math.max(1, arg)
+      const offset = 20 * (page - 1)
+
+      let query = `
         SELECT d.*
          FROM documents d
          LEFT JOIN document_folders df
           ON d.id = df.document_id
           AND df.folder_id = ?
-        WHERE df.document_id IS NULL;
-      `)
-      const rows = stmt.all(id)
+        WHERE df.document_id IS NULL
+      `
+      const params: (string | number)[] = [folderId]
+
+      if (text && text.trim() !== '') {
+        query += ` AND d.filename like ?`
+        params.push(`%${text}%`)
+      }
+
+      query += ` LIMIT 20 OFFSET ?`
+      params.push(offset)
+      const stmt = this.dbService.db.prepare<(number | string)[], FolderDocuments>(query)
+      const rows = stmt.all(...params)
       return { success: true, data: rows }
     } catch {
       return { success: false }
@@ -224,7 +238,7 @@ class FolderService {
     }
   }
 
-  getAllSubFolderCount(parentFolderId: number, text?: string): getFolderCountType {
+  getAllSubFolderCount(parentFolderId: number, text: string): getFolderCountType {
     try {
       let query = `
       SELECT COUNT(*) as total_folder
@@ -232,9 +246,9 @@ class FolderService {
       WHERE parent_id = ?
       `
       const params: (number | string)[] = [parentFolderId]
-      if (text?.trim()) {
+      if (text && text.trim() !== '') {
         query += ` AND name LIKE ?`
-        params.push(`%${text.trim()}%`)
+        params.push(`%${text}%`)
       }
       const stmtFolder = this.dbService.db.prepare(query)
       const data = stmtFolder.get(...params) as {
@@ -242,6 +256,29 @@ class FolderService {
       }
 
       return { success: true, data: data.total_folder }
+    } catch {
+      return { success: false }
+    }
+  }
+
+  countDocumentsNotInFoler(id: number, text: string): countDocumentNotInFolderType {
+    try {
+      let query = `
+      SELECT COUNT(d.id) AS total_document
+      FROM documents d
+      LEFT JOIN document_folders df
+      ON d.id = df.document_id
+      AND df.folder_id = ?
+      WHERE df.document_id IS NULL
+     `
+      const params: (number | string)[] = [id]
+      if (text && text.trim() !== '') {
+        query += ` AND filename LIKE ?`
+        params.push(`%${text}%`)
+      }
+      const stmt = this.dbService.db.prepare(query)
+      const data = stmt.get(...params) as { total_document: number }
+      return { success: true, data: data.total_document }
     } catch {
       return { success: false }
     }

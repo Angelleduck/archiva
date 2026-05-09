@@ -44,7 +44,7 @@ class DocumentService {
     }
   }
 
-  getAll(arg = 0, text: string): GetAllType {
+  getAll(arg: number, text: string): GetAllType {
     const page = Math.max(1, arg)
     const offset = 20 * (page - 1)
 
@@ -130,7 +130,7 @@ class DocumentService {
       let query = `SELECT count(*) as total_file FROM documents`
       const params: string[] = []
 
-      if (text?.trim()) {
+      if (text && text.trim() !== '') {
         query += ` WHERE filename LIKE ?`
         params.push(`%${text}%`)
       }

@@ -12,7 +12,7 @@ interface useFolderDataType {
   isLoading: boolean
   setSubfolders: React.Dispatch<React.SetStateAction<FolderType[]>>
   page: number
-  handlePageUpdate: (arg: number) => void
+  handlePageUpdate: (page: number) => void
   totalPages: number
   setPage: React.Dispatch<React.SetStateAction<number>>
 }
@@ -49,7 +49,6 @@ export function useFolderData(folderId: string | undefined, text: string): useFo
       }
 
       if (allPages.success) {
-        console.log(allPages.data)
         setTotalPages(Math.ceil(allPages.data / 11))
       }
       setIsLoading(false)

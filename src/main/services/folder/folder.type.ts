@@ -35,6 +35,7 @@ type AddDocumentType = { success: boolean; message?: string }
 type RemoveDocumentType = { success: boolean; message?: string }
 type editFolderTitleType = { success: boolean; message?: string }
 type getFolderCountType = { success: boolean; data: number } | { success: false }
+type countDocumentNotInFolderType = { success: boolean; data: number } | { success: false }
 export type {
   CreateFolderType,
   GetFoldersType,
@@ -49,5 +50,6 @@ export type {
   CreateSubfolderType,
   editFolderTitleType,
   getFolderCountType,
-  GetDocumentsNotInFolderType
+  GetDocumentsNotInFolderType,
+  countDocumentNotInFolderType
 }
