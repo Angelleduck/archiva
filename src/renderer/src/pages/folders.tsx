@@ -7,6 +7,7 @@ import { Folder } from 'src/main/services/folder/folder.type'
 import { FolderItem } from '@renderer/components/folder/folder-item'
 import Loader from '@renderer/components/document/loader'
 import { Paginate } from '@renderer/components/document/paginate'
+import { Glass } from '@renderer/components/svg/glass'
 
 export default function Folders(): React.JSX.Element {
   const [folders, setFolders] = useState<Folder[]>([])
@@ -18,6 +19,7 @@ export default function Folders(): React.JSX.Element {
   const [isLoading, setIsLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(0)
+  const [searchTerm, setSearchTerm] = useState('')
 
   useEffect(() => {
     function sleep(): Promise<void> {
@@ -27,15 +29,15 @@ export default function Folders(): React.JSX.Element {
     async function getFolders(): Promise<void> {
       // Wait for both the fetch and the minimum delay
       const [result, allPages] = await Promise.all([
-        window.api.folder.getRootFolders(page),
-        window.api.folder.getFolderCount(),
+        window.api.folder.getRootFolders(page, searchTerm),
+        window.api.folder.getFolderCount(searchTerm),
         sleep()
       ])
       if (result.success) {
         setFolders(result.data)
       }
       if (allPages.success) {
-        setTotalPages(Math.ceil(allPages.data / 20))
+        setTotalPages(Math.ceil(allPages.data / 16))
       }
       setIsLoading(false)
     }
@@ -51,11 +53,14 @@ export default function Folders(): React.JSX.Element {
   }
 
   const handleDelete = async (id: number): Promise<void> => {
-    const result = await window.api.folder.delete(id)
+    await window.api.folder.delete(id)
 
-    if (result.success) {
-      setFolders((prev) => prev.filter((doc) => doc.id !== id))
+    if (folders.length === 1 && page > 1) {
+      setPage((page) => page - 1)
+    } else {
+      setTrigger((prev) => prev + 1)
     }
+
     handleCloseDeleteModal()
   }
 
@@ -90,6 +95,12 @@ export default function Folders(): React.JSX.Element {
     setPage(selectedPage)
   }
 
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>): void => {
+    e.preventDefault()
+    setPage(1)
+    handleTrigger()
+  }
+
   if (isLoading) return <Loader />
 
   return (
@@ -114,7 +125,7 @@ export default function Folders(): React.JSX.Element {
       {showModal && <FolderModal onCloseModal={handleCloseModal} onTrigger={handleTrigger} />}
 
       <div>
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-4">
           <div className="space-y-1">
             <h2 className="font-bold text-2xl">Mes Dossiers</h2>
             <p className="text-gray-secondary">Organiser vos documents par dossier</p>
@@ -129,6 +140,23 @@ export default function Folders(): React.JSX.Element {
             Nouveau dossier
           </button>
         </div>
+
+        <div className="mb-4">
+          <form
+            onSubmit={handleSubmit}
+            className="px-3 border-2 border-border-primary rounded-lg bg-white relative flex
+            items-center gap-3 focus-within:border-blue-300 mb-2"
+          >
+            <Glass className="w-5 h-5 text-gray-400" />
+            <input
+              onChange={(e) => setSearchTerm(e.target.value)}
+              type="text"
+              placeholder="Rechercher par nom"
+              className="w-full py-3"
+            />
+          </form>
+        </div>
+
         <div className="grid grid-cols-4 gap-x-6 gap-y-8 mb-4">
           {folders.map((folder, idx: number) => (
             <FolderItem folder={folder} handleSelectFolder={handleSelectFolder} key={idx} />

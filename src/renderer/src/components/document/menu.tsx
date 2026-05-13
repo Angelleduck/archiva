@@ -23,7 +23,7 @@ function DocumentMenu({ onSelectDocument, document }: MenuProps): React.JSX.Elem
           bg-gray-100 hover:bg-gray-200 w-full p-2 rounded-md"
           >
             <SquarePen className="text-gray-secondary group-hover:text-blue-400" size={22} />
-            <p className="font-medium group-hover:text-blue-400">Modifier titre</p>
+            <p className="font-medium group-hover:text-blue-400">Modifier nom</p>
           </button>
           <button
             onClick={() => onSelectDocument(document, 'delete')}
@@ -31,7 +31,7 @@ function DocumentMenu({ onSelectDocument, document }: MenuProps): React.JSX.Elem
           bg-gray-100 hover:bg-gray-200 w-full p-2 rounded-md"
           >
             <Trash2 className="text-gray-secondary group-hover:text-red-400" size={22} />
-            <p className="font-medium group-hover:text-red-400">Supprimer dossier</p>
+            <p className="font-medium group-hover:text-red-400">Supprimer document</p>
           </button>
         </div>
       </PopoverContent>

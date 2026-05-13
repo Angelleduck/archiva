@@ -4,6 +4,7 @@ import { Download, File, Trash2, X } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import type {
+  DocumentStatus,
   Document as DocumentType,
   SelectedFiles
 } from 'src/main/services/document/document.type'
@@ -38,7 +39,15 @@ export default function Import(): React.JSX.Element {
       return
     }
 
-    await window.api.document.importFile(documents)
+    const { filesNotImported } = await window.api.document.importFile(documents)
+
+    if (filesNotImported.length > 0) {
+      for (const doc of filesNotImported) {
+        toast.error(`impossible d'importé ${doc}`)
+      }
+    } else {
+      toast.success('documents importés')
+    }
 
     setDocuments([])
     setTrigger((prev) => prev + 1)
@@ -46,8 +55,8 @@ export default function Import(): React.JSX.Element {
   const handleRemoveSelectedDocument = (idx: number): void => {
     setDocuments((files) => files.filter((_, index) => idx !== index))
   }
-  const handleOpenDocument = async (filePath: string): Promise<void> => {
-    const result = await window.api.document.open(filePath)
+  const handleOpenDocument = async (filePath: string, status: DocumentStatus): Promise<void> => {
+    const result = await window.api.document.open(filePath, status)
     if (result.success === false && result.message) {
       toast.error(result.message)
     }
@@ -90,7 +99,7 @@ export default function Import(): React.JSX.Element {
             <button
               type="button"
               className="flex py-4 w-full justify-center items-center border-2 border-blue-300
-         rounded-lg font-semibold text-blue-300 gap-2 cursor-pointer"
+              rounded-lg font-semibold text-blue-300 gap-2 cursor-pointer"
               onClick={handleSelectFile}
             >
               <Download size={24} />
@@ -106,9 +115,12 @@ export default function Import(): React.JSX.Element {
                 <div className="space-y-2">
                   {documents.map((doc, idx) => (
                     <div key={idx} className="flex justify-between items-center">
-                      <p className="py-0.5 px-2 text-white bg-blue-400 rounded-xl">
+                      <button
+                        onClick={() => handleOpenDocument(doc.path, 'Not imported')}
+                        className="py-0.5 px-2 text-white bg-blue-400 rounded-lg cursor-pointer hover:bg-blue-500"
+                      >
                         {doc.filename}
-                      </p>
+                      </button>
                       <X
                         onClick={() => handleRemoveSelectedDocument(idx)}
                         className="text-red-400 hover:text-red-500 cursor-pointer"
@@ -141,7 +153,7 @@ export default function Import(): React.JSX.Element {
                     <div className="flex flex-col">
                       <button
                         onClick={() => {
-                          handleOpenDocument(doc.path)
+                          handleOpenDocument(doc.path, 'Already imported')
                         }}
                         className="font-semibold text-black-primary cursor-pointer hover:text-blue-300 leading-tight"
                       >

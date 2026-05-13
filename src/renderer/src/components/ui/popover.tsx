@@ -37,42 +37,4 @@ function PopoverContent({
   )
 }
 
-function PopoverAnchor({
-  ...props
-}: React.ComponentProps<typeof PopoverPrimitive.Anchor>): React.JSX.Element {
-  return <PopoverPrimitive.Anchor data-slot="popover-anchor" {...props} />
-}
-
-function PopoverHeader({ className, ...props }: React.ComponentProps<'div'>): React.JSX.Element {
-  return (
-    <div
-      data-slot="popover-header"
-      className={cn('flex flex-col gap-0.5 text-sm', className)}
-      {...props}
-    />
-  )
-}
-
-function PopoverTitle({ className, ...props }: React.ComponentProps<'h2'>): React.JSX.Element {
-  return <div data-slot="popover-title" className={cn('font-medium', className)} {...props} />
-}
-
-function PopoverDescription({ className, ...props }: React.ComponentProps<'p'>): React.JSX.Element {
-  return (
-    <p
-      data-slot="popover-description"
-      className={cn('text-muted-foreground', className)}
-      {...props}
-    />
-  )
-}
-
-export {
-  Popover,
-  PopoverAnchor,
-  PopoverContent,
-  PopoverDescription,
-  PopoverHeader,
-  PopoverTitle,
-  PopoverTrigger
-}
+export { Popover, PopoverContent, PopoverTrigger }

@@ -49,20 +49,27 @@ class FolderService {
     }
   }
 
-  getRootFolders(arg = 0): GetFoldersType {
-    const page = arg < 2 ? 1 : arg
-    const offset = 20 * (page - 1)
+  getRootFolders(arg: number, text: string): GetFoldersType {
+    const page = Math.max(1, arg)
+    const offset = 16 * (page - 1)
     try {
-      const stmt = this.dbService.db.prepare<number, Folder>(`
+      let query = `
         SELECT
           id,
           name,
           created_at
         FROM folders
         WHERE parent_id IS NULL
-        LIMIT 20 OFFSET ?;
-      `)
-      const rows = stmt.all(offset)
+      `
+      const params: (number | string)[] = []
+      if (text && text.trim() !== '') {
+        query += ` AND name like ?`
+        params.push(`%${text}%`)
+      }
+      query += ` LIMIT 16 OFFSET ?`
+      params.push(offset)
+      const stmt = this.dbService.db.prepare<(number | string)[], Folder>(query)
+      const rows = stmt.all(...params)
       return { success: true, data: rows }
     } catch {
       return { success: false }
@@ -224,13 +231,20 @@ class FolderService {
     }
   }
 
-  getAllFolderCount(): getFolderCountType {
+  getAllFolderCount(searchText: string): getFolderCountType {
     try {
-      const stmtFolder = this.dbService.db.prepare(`
+      let query = `
         SELECT count(*) as total_folder FROM folders
         WHERE parent_id IS NULL
-        `)
-      const data = stmtFolder.get() as { total_folder: number }
+        `
+      const params: string[] = []
+      if (searchText && searchText.trim() !== '') {
+        query += ` And name LIKE ?`
+        params.push(`%${searchText}%`)
+      }
+
+      const stmt = this.dbService.db.prepare(query)
+      const data = stmt.get(...params) as { total_folder: number }
 
       return { success: true, data: data.total_folder }
     } catch {

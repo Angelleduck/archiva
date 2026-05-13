@@ -14,7 +14,9 @@ interface SubfoldersProps {
   setSubfolders: React.Dispatch<React.SetStateAction<FolderType[]>>
   page: number
   totalPages: number
+  setPage: React.Dispatch<React.SetStateAction<number>>
   handlePageUpdate: (arg: number) => void
+  refetch: () => void
 }
 
 export function Subfolders({
@@ -23,11 +25,14 @@ export function Subfolders({
   setSubfolders,
   page,
   totalPages,
-  handlePageUpdate
+  handlePageUpdate,
+  refetch,
+  setPage
 }: SubfoldersProps): React.JSX.Element {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
   const [folderObject, setfolderObject] = useState({ name: '', id: 0 })
+  console.log('yepp')
 
   const handleSelectFolder = useCallback((folder: Folder, purpose: 'delete' | 'edit'): void => {
     setfolderObject({ id: folder.id, name: folder.name })
@@ -51,7 +56,13 @@ export function Subfolders({
 
   const handleDeleteFolder = async (id: number): Promise<void> => {
     await window.api.folder.delete(id)
-    setSubfolders((prev) => prev.filter((subfolder) => subfolder.id !== id))
+
+    if (subfolders.length === 1 && page > 1) {
+      setPage((page) => page - 1)
+    } else {
+      refetch()
+    }
+
     handleCloseDeleteModal()
   }
   const handleCloseEditTitleModal = (): void => {
@@ -78,6 +89,7 @@ export function Subfolders({
           name={folderObject.name}
           onEdit={handleEdit}
           id={folderObject.id}
+          type="folder"
         />
       )}
       {showDeleteModal && (

@@ -1,5 +1,5 @@
 import { debounce } from '@renderer/helper/utils'
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { FolderDocuments } from 'src/main/services/folder/folder.type'
 
 interface useDocumentSearchType {
@@ -16,16 +16,16 @@ export function useDoucmentSearch(folderDocuments: FolderDocuments[]): useDocume
       return folderDocuments
     }
 
-    // return subfolders.filter((doc) => doc.name.toLowerCase().includes(searchTerm))
     return folderDocuments.filter((doc) => {
       return doc.filename.toLowerCase().includes(searchTerm)
     })
   }, [folderDocuments, searchTerm])
 
-  // Debounce with useCallback
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debouncedSetSearchTerm = useCallback(
-    debounce((value: string) => setSearchTerm(value), 500),
+  const debouncedSetSearchTerm = useMemo(
+    () =>
+      debounce((value: string) => {
+        setSearchTerm(value)
+      }, 500),
     []
   )
 

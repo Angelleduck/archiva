@@ -5,7 +5,7 @@ import { SubfolderModal } from '@renderer/components/folder/modal/add-subfolder'
 import { Subfolders } from '@renderer/components/folder/subfolders'
 import { Glass } from '@renderer/components/svg/glass'
 import { useFolderData } from '@renderer/hooks/useFolderData'
-import { ChevronLeft, FolderIcon, Plus } from 'lucide-react'
+import { ChevronLeft, FolderIcon } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -16,7 +16,6 @@ export default function Folder(): React.JSX.Element {
   const navigate = useNavigate()
   const { id } = useParams()
 
-  // Here I'm using
   const [searchTerm, setSearchTerm] = useState('')
   const {
     folderDocuments,
@@ -34,6 +33,9 @@ export default function Folder(): React.JSX.Element {
   const handleCloseDocumentModal = (): void => {
     setShowDocumentModal(false)
   }
+  const handleOpenDocumentModal = useCallback((): void => {
+    setShowDocumentModal(true)
+  }, [])
   const handleCloseFolderModal = (): void => {
     setShowFolderModal(false)
   }
@@ -45,9 +47,9 @@ export default function Folder(): React.JSX.Element {
     await window.api.folder.removeDocument(folderId, documentId)
     handleTrigger()
   }
-  const handleSetShowFolderModal = useCallback((): void => {
+  const handleSetShowFolderModal = (): void => {
     setShowFolderModal(true)
-  }, [])
+  }
 
   const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>): void => {
     e.preventDefault()
@@ -89,15 +91,6 @@ export default function Folder(): React.JSX.Element {
                 </div>
                 <p>{folder?.name}</p>
               </div>
-              <button
-                type="button"
-                onClick={() => setShowDocumentModal(true)}
-                className="flex gap-2 bg-blue-400 py-2 rounded-lg hover:bg-blue-500
-                text-white px-4 items-center cursor-pointer"
-              >
-                <Plus />
-                Ajouter un document
-              </button>
             </div>
           </div>
         </div>
@@ -123,14 +116,17 @@ export default function Folder(): React.JSX.Element {
           handleSetShowFolderModal={handleSetShowFolderModal}
           setSubfolders={setSubfolders}
           page={page}
+          setPage={setPage}
           totalPages={totalPages}
           handlePageUpdate={handlePageUpdate}
+          refetch={refetch}
         />
 
         <DocumentSection
           folderDocuments={folderDocuments}
           folderId={Number(id)}
           handleRemoveDocument={handleRemoveDocument}
+          onOpenDocumentModal={handleOpenDocumentModal}
         />
       </div>
     </>

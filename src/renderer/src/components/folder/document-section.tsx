@@ -1,26 +1,29 @@
 import { formatSize } from '@renderer/helper/utils'
-import { File, X } from 'lucide-react'
+import { File, Plus, X } from 'lucide-react'
 
 import type { FolderDocuments as FolderDocumentsType } from 'src/main/services/folder/folder.type'
 import { Glass } from '../svg/glass'
 import { useDoucmentSearch } from '@renderer/hooks/useDocumentSearch'
 import toast from 'react-hot-toast'
+import { DocumentStatus } from 'src/main/services/document/document.type'
 
 interface DocumentSectionProps {
   folderDocuments: FolderDocumentsType[]
   handleRemoveDocument: (folderId: number, documentId: number) => Promise<void>
   folderId: number
+  onOpenDocumentModal: () => void
 }
 
 export function DocumentSection({
   folderDocuments,
   handleRemoveDocument,
-  folderId
+  folderId,
+  onOpenDocumentModal
 }: DocumentSectionProps): React.JSX.Element {
   const { filteredDocuments, debouncedSetSearchTerm } = useDoucmentSearch(folderDocuments)
 
-  const handleOpenDocument = async (filePath: string): Promise<void> => {
-    const result = await window.api.document.open(filePath)
+  const handleOpenDocument = async (filePath: string, status: DocumentStatus): Promise<void> => {
+    const result = await window.api.document.open(filePath, status)
     if (result.success == false && result.message) {
       toast.error(result.message)
     }
@@ -29,10 +32,20 @@ export function DocumentSection({
   return (
     <div
       className="p-5 border border-border-primary rounded-lg bg-white
-         transition-all duration-200 relative"
+      transition-all duration-200 relative"
     >
-      <h3 className="mb-4">Documents({folderDocuments.length})</h3>
-
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="">Documents({folderDocuments.length})</h3>
+        <button
+          type="button"
+          onClick={onOpenDocumentModal}
+          className="flex gap-2 bg-blue-400 py-2 rounded-lg hover:bg-blue-500
+                text-white px-4 items-center cursor-pointer"
+        >
+          <Plus />
+          Ajouter un document
+        </button>
+      </div>
       <div
         className="px-3 border-border-primary rounded-lg transition-all
       bg-white relative flex items-center gap-3 focus-within:border-blue-300
@@ -47,12 +60,12 @@ export function DocumentSection({
         />
       </div>
 
-      <div className="space-y-4 max-h-128 overflow-y-auto">
+      <div className="space-y-4 max-h-128 overflow-y-auto pr-2.5">
         {filteredDocuments.map((doc) => (
           <div
             key={doc.id}
             onClick={() => {
-              handleOpenDocument(doc.path)
+              handleOpenDocument(doc.path, 'Already imported')
             }}
             className="flex items-center justify-between p-4 bg-gray-50 rounded-lg
                 hover:bg-gray-100 transition-colors cursor-pointer"

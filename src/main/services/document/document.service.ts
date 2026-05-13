@@ -25,7 +25,8 @@ class DocumentService {
       const { filename, originalPath } = data
 
       if (!fs.existsSync(originalPath)) {
-        return { success: false }
+        const truncatedName = filename.length > 10 ? filename.slice(0, 10) + '…' : filename
+        return { success: false, fileNotImported: truncatedName }
       }
 
       const { size: fileSize } = fs.statSync(originalPath)

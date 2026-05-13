@@ -8,7 +8,7 @@ import { formatSize } from '@renderer/helper/utils'
 import { File } from 'lucide-react'
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
-import type { Document } from 'src/main/services/document/document.type'
+import type { Document, DocumentStatus } from 'src/main/services/document/document.type'
 
 export default function Document(): React.JSX.Element {
   const [documents, setDocuments] = useState<Document[]>([])
@@ -40,18 +40,20 @@ export default function Document(): React.JSX.Element {
     getAlldocument()
   }, [trigger, page])
 
-  const handleOpenDocument = async (filePath: string): Promise<void> => {
-    const result = await window.api.document.open(filePath)
+  const handleOpenDocument = async (filePath: string, status: DocumentStatus): Promise<void> => {
+    const result = await window.api.document.open(filePath, status)
     if (result.success == false && result.message) {
       toast.error(result.message)
     }
   }
 
   const handleDeleteFile = async (id: number): Promise<void> => {
-    const result = await window.api.document.delete(id)
+    await window.api.document.delete(id)
 
-    if (result.success) {
-      setDocuments((prev) => prev.filter((doc) => doc.id !== id))
+    if (documents.length === 1 && page > 1) {
+      setPage((page) => page - 1)
+    } else {
+      setTrigger((prev) => prev + 1)
     }
 
     handleCloseDeleteModal()
@@ -67,7 +69,7 @@ export default function Document(): React.JSX.Element {
   }, [])
 
   const handleOpen = useCallback((path: string) => {
-    handleOpenDocument(path)
+    handleOpenDocument(path, 'Already imported')
   }, [])
 
   const handleSelectDocument = useCallback((document: Document, purpose: 'delete' | 'edit') => {
@@ -124,6 +126,7 @@ export default function Document(): React.JSX.Element {
           name={documentObject.name}
           onEdit={handleEdit}
           id={documentObject.id}
+          type="document"
         />
       )}
       <div>

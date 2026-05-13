@@ -8,9 +8,11 @@ import fs from 'node:fs'
 import path from 'node:path'
 import type {
   DeleteType,
+  DocumentStatus,
   GetAllType,
   GetRecentType,
   GetStatsType,
+  ImportDocucmentType,
   ImportFileType,
   OpenDocumentType,
   SelectFile
@@ -94,32 +96,36 @@ app.whenReady().then(() => {
     return { success: true, data: documents }
   })
 
-  ipcMain.handle('document:import', async (_event, documents: ImportFileType[]) => {
+  ipcMain.handle('document:import', (_event, documents: ImportFileType[]): ImportDocucmentType => {
+    const filesNotImported: string[] = []
     for (const document of documents) {
-      documentService.addFile({
+      const { fileNotImported } = documentService.addFile({
         filename: document.filename,
         originalPath: document.path
       })
+      if (fileNotImported) filesNotImported.push(fileNotImported)
     }
+    return { filesNotImported }
   })
 
-  ipcMain.handle('document:open', async (_event, filePath: string): Promise<OpenDocumentType> => {
-    try {
-      if (!fs.existsSync(filePath)) {
-        return {
-          success: false,
-          message: "Impossible d'ouvrir le fichier. \n Supprimer et re-importer le fichier."
+  ipcMain.handle(
+    'document:open',
+    async (_event, filePath: string, status: DocumentStatus): Promise<OpenDocumentType> => {
+      try {
+        if (!fs.existsSync(filePath)) {
+          const extraMessage =
+            status === 'Already imported' ? '\nSupprimer et re-importer le fichier.' : ''
+          return { success: false, message: `Impossible d'ouvrir le fichier.${extraMessage}` }
         }
-      }
-      await shell.openPath(filePath)
-      return { success: true }
-    } catch {
-      return {
-        success: false,
-        message: "Impossible d'ouvrir le fichier. \n Supprimer et re-importer le fichier."
+        await shell.openPath(filePath)
+        return { success: true }
+      } catch {
+        const extraMessage =
+          status === 'Already imported' ? '\nSupprimer et re-importer le fichier.' : ''
+        return { success: false, message: `Impossible d'ouvrir le fichier.${extraMessage}` }
       }
     }
-  })
+  )
 
   ipcMain.handle(
     'document:get-all',
@@ -162,8 +168,8 @@ app.whenReady().then(() => {
 
   ipcMain.handle(
     'folder:get-rootFolders',
-    async (_event, page: number): Promise<GetFoldersType> => {
-      return folderService.getRootFolders(page)
+    async (_event, page: number, text: string): Promise<GetFoldersType> => {
+      return folderService.getRootFolders(page, text)
     }
   )
   ipcMain.handle('folder:get', async (_event, id: string): Promise<GetFolderType> => {
@@ -201,8 +207,8 @@ app.whenReady().then(() => {
     return folderService.editFolderTitle(folderId, title)
   })
 
-  ipcMain.handle('folder:count-all', async () => {
-    return folderService.getAllFolderCount()
+  ipcMain.handle('folder:count-all', async (_event, text: string) => {
+    return folderService.getAllFolderCount(text)
   })
   ipcMain.handle(
     'folder:subfolder-CountAll',

@@ -1,11 +1,13 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import type {
   DeleteType,
+  DocumentStatus,
   editDocumentTitleType,
   GetAllType,
   getDocumentCountType,
   GetRecentType,
   GetStatsType,
+  ImportDocucmentType,
   ImportFileType,
   OpenDocumentType,
   SelectFile
@@ -31,17 +33,17 @@ declare global {
     api: {
       document: {
         selectFile: () => Promise<SelectFile>
-        importFile: (documents: ImportFileType[]) => Promise<void>
+        importFile: (documents: ImportFileType[]) => Promise<ImportDocucmentType>
         getAll: (offset: number, text: string) => Promise<GetAllType>
         getRecent: () => Promise<GetRecentType>
-        open: (path: string) => Promise<OpenDocumentType>
+        open: (path: string, status: DocumentStatus) => Promise<OpenDocumentType>
         delete: (id: number) => Promise<DeleteType>
         editDocumentTitle: (id: number, title: string) => Promise<editDocumentTitleType>
         stats: () => Promise<GetStatsType>
         getDocumentCount: (searchText: string) => Promise<getDocumentCountType>
       }
       folder: {
-        getRootFolders: (page: number) => Promise<GetFoldersType>
+        getRootFolders: (page: number, text: string) => Promise<GetFoldersType>
         get: (id: string) => Promise<GetFolderType>
         getSubfolders: (id: string, page: number, text: string) => Promise<GetFoldersType>
         editFolderTitle: (id: number, title: string) => Promise<editFolderTitleType>
@@ -51,7 +53,7 @@ declare global {
         delete: (id: number) => Promise<DeleteFolderType>
         addDocument: (folderId: number, documentId: number) => Promise<AddDocumentType>
         removeDocument: (folderId: number, documentId: number) => Promise<RemoveDocumentType>
-        getFolderCount: () => Promise<getFolderCountType>
+        getFolderCount: (searchText: string) => Promise<getFolderCountType>
         getSubfolderCount: (id: number, text: string) => Promise<getFolderCountType>
         getDocumentsNotInFolder: (
           folderId: number,

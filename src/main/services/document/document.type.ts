@@ -24,8 +24,8 @@ interface ImportFileType {
   filename: string
   path: string
 }
-
-type AddFileType = { success: boolean; message?: string }
+type DocumentStatus = 'Already imported' | 'Not imported'
+type AddFileType = { success: boolean; message?: string; fileNotImported?: string }
 type GetAllType = { success: true; data: Document[] } | { success: false; message?: string }
 type GetRecentType = { success: true; data: Document[] } | { success: false; message?: string }
 type DeleteType = { success: boolean; message?: string }
@@ -34,6 +34,7 @@ type SelectFile = { success: true; data: SelectedFiles[] } | { success: false; m
 type GetStatsType = { success: true; data: StatsType } | { success: false; message?: string }
 type editDocumentTitleType = { success: boolean; message?: string }
 type getDocumentCountType = { success: boolean; data: number } | { success: false }
+type ImportDocucmentType = { filesNotImported: string[] }
 
 export type {
   ImportFileType,
@@ -48,5 +49,7 @@ export type {
   SelectedFiles,
   GetStatsType,
   editDocumentTitleType,
-  getDocumentCountType
+  getDocumentCountType,
+  DocumentStatus,
+  ImportDocucmentType
 }

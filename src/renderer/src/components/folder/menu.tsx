@@ -23,7 +23,7 @@ export function FolderMenu({ onSelectFolder, folder }: MenuProps): React.JSX.Ele
           bg-gray-100 hover:bg-gray-200 w-full p-2 rounded-md"
           >
             <SquarePen className="text-gray-secondary group-hover:text-blue-400" size={22} />
-            <p className="font-medium group-hover:text-blue-400">Modifier titre</p>
+            <p className="font-medium group-hover:text-blue-400">Modifier nom</p>
           </button>
           <button
             onClick={() => onSelectFolder(folder, 'delete')}

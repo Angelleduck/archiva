@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import type {
   DeleteType,
+  DocumentStatus,
   editDocumentTitleType,
   GetAllType,
   getDocumentCountType,
@@ -34,8 +35,8 @@ const api = {
     getAll: (page: number, text: string): Promise<GetAllType> =>
       ipcRenderer.invoke('document:get-all', page, text),
     getRecent: (): Promise<GetRecentType> => ipcRenderer.invoke('document:get-recentFiles'),
-    open: (filePath: string): Promise<OpenDocumentType> =>
-      ipcRenderer.invoke('document:open', filePath),
+    open: (filePath: string, status: DocumentStatus): Promise<OpenDocumentType> =>
+      ipcRenderer.invoke('document:open', filePath, status),
     delete: (id: number): Promise<DeleteType> => ipcRenderer.invoke('document:delete-file', id),
     stats: (): Promise<GetStatsType> => ipcRenderer.invoke('document:get-stats'),
     editDocumentTitle: (id: number, title: string): Promise<editDocumentTitleType> =>
@@ -46,8 +47,8 @@ const api = {
 
   //=========================== Folders ============================//
   folder: {
-    getRootFolders: (page: number): Promise<GetFoldersType> =>
-      ipcRenderer.invoke('folder:get-rootFolders', page),
+    getRootFolders: (page: number, text: string): Promise<GetFoldersType> =>
+      ipcRenderer.invoke('folder:get-rootFolders', page, text),
     get: (id: string): Promise<GetFolderType> => ipcRenderer.invoke('folder:get', id),
     getSubfolders: (id: string, page: number, text: string): Promise<GetFoldersType> =>
       ipcRenderer.invoke('folder:getSubfolders', id, page, text),
