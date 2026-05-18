@@ -27,6 +27,8 @@ import type {
   RemoveDocumentType,
   CreateSubfolderType
 } from './services/folder/folder.type'
+import conf from './store/store'
+import StoreService from './services/store/store.service'
 
 function createWindow(): void {
   // Create the browser window.
@@ -64,12 +66,14 @@ function createWindow(): void {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
+
+app.whenReady().then(async () => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
   const documentService = new DocumentService()
   const folderService = new FolderService()
+  const storeService = new StoreService()
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
@@ -77,6 +81,21 @@ app.whenReady().then(() => {
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
+
+  if (!conf.has('path')) {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      properties: ['openDirectory'],
+      title: 'Choose where to store your documents',
+      buttonLabel: 'Select Folder'
+    })
+
+    if (canceled || filePaths.length === 0) {
+      app.quit() // directory is required, can't continue
+      return
+    }
+    console.log(filePaths)
+    conf.set('path', filePaths[0])
+  }
 
   //=========================== Documents ============================//
 
@@ -224,6 +243,26 @@ app.whenReady().then(() => {
   )
   ipcMain.handle('folder:countDocumentNotInFolder', async (_event, id: number, text: string) => {
     return folderService.countDocumentsNotInFoler(id, text)
+  })
+
+  //=================================Store==================================//
+
+  ipcMain.handle('store:get', () => {
+    return storeService.getData()
+  })
+
+  ipcMain.handle('store:update', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      properties: ['openDirectory'],
+      title: 'Choose where to store your documents',
+      buttonLabel: 'Select Folder'
+    })
+
+    if (canceled || filePaths.length === 0) {
+      return
+    }
+    console.log(filePaths)
+    conf.set('path', filePaths[0])
   })
 
   createWindow()

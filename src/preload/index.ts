@@ -77,6 +77,12 @@ const api = {
 
     countDocumentNotInFolder: (id: number, text: string): Promise<countDocumentNotInFolderType> =>
       ipcRenderer.invoke('folder:countDocumentNotInFolder', id, text)
+  },
+  //====================================Store=================================//
+  store: {
+    check: () => ipcRenderer.invoke('store:check'),
+    get: () => ipcRenderer.invoke('store:get'),
+    update: () => ipcRenderer.invoke('store:update')
   }
 }
 

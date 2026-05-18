@@ -1,4 +1,4 @@
-import { Download, FileText, Folder, House } from 'lucide-react'
+import { Download, FileText, Folder, House, Settings } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 
 export function Sidebar(): React.JSX.Element {
@@ -19,6 +19,11 @@ export function Sidebar(): React.JSX.Element {
       <NavItem href="/folders">
         <Folder size={20} className="shrink-0" />
         Dossiers
+      </NavItem>
+      <hr className="border-gray-200" />
+      <NavItem href="/settings">
+        <Settings />
+        Parametre
       </NavItem>
     </div>
   )

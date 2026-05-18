@@ -2,6 +2,7 @@ import { app } from 'electron'
 import path from 'node:path'
 import Database, { type Database as dbType } from 'better-sqlite3'
 import fs from 'node:fs'
+import conf from '../store/store'
 
 class DatabaseService {
   private static instance: DatabaseService
@@ -12,7 +13,10 @@ class DatabaseService {
     const userDataPath = path.join(app.getPath('userData'), 'file-data')
     const dbPath = path.join(userDataPath, 'database.db')
 
-    const documentPath = path.join(userDataPath, 'document')
+    const defaultDocumentPath = path.join(userDataPath, 'document')
+    const storedPath = conf.get('path') as string
+
+    const documentPath = storedPath || defaultDocumentPath
 
     // Créer le dossier file-data s'il n'existe pas
     if (!fs.existsSync(userDataPath)) {

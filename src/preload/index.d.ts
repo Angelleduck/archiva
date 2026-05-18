@@ -26,6 +26,7 @@ import type {
   GetFolderType,
   RemoveDocumentType
 } from '../main/services/folder/folder.type'
+import type { getStoreDataType } from 'src/main/services/store/store.type'
 
 declare global {
   interface Window {
@@ -64,6 +65,11 @@ declare global {
           id: number,
           text: string
         ) => Promise<countDocumentNotInFolderType>
+      }
+      store: {
+        check: () => Promise<{ success: boolean }>
+        get: () => Promise<getStoreDataType>
+        update: () => Promise<void>
       }
     }
   }

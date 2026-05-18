@@ -6,6 +6,7 @@ import Folders from './pages/folders'
 import Folder from './pages/folder'
 import Document from './pages/document'
 import { Toaster } from 'react-hot-toast'
+import Settings from './pages/settings'
 
 const router = createHashRouter([
   {
@@ -31,6 +32,10 @@ const router = createHashRouter([
       {
         path: 'folders/:id',
         element: <Folder />
+      },
+      {
+        path: 'settings',
+        element: <Settings />
       }
     ]
   }
