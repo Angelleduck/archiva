@@ -6,7 +6,7 @@ import { useCallback, useState } from 'react'
 import { EditTitleModal } from './modal/edit-title'
 import { FolderCard } from '../subfolder/folder-card'
 import { useNavigate } from 'react-router-dom'
-import { Paginate } from '../document/paginate'
+import { Paginate } from '../paginate'
 
 interface SubfoldersProps {
   subfolders: FolderType[]
@@ -32,7 +32,6 @@ export function Subfolders({
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
   const [folderObject, setfolderObject] = useState({ name: '', id: 0 })
-  console.log('yepp')
 
   const handleSelectFolder = useCallback((folder: Folder, purpose: 'delete' | 'edit'): void => {
     setfolderObject({ id: folder.id, name: folder.name })

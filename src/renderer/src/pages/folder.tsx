@@ -89,7 +89,7 @@ export default function Folder(): React.JSX.Element {
                 <div className="w-11 h-11 bg-blue-100 flex items-center justify-center rounded-md gap-2">
                   <FolderIcon size={20} className="fill-blue-600 stroke-blue-600 shrink-0" />
                 </div>
-                <p>{folder?.name}</p>
+                <p className="max-w-[60ch] truncate">{folder?.name}</p>
               </div>
             </div>
           </div>

@@ -76,7 +76,7 @@ export function DocumentSection({
               </div>
               <div className="flex justify-between items-center w-full">
                 <div className="flex flex-col">
-                  <p className="text-sm font-medium">{doc.filename}</p>
+                  <p className="text-sm font-medium max-w-[80ch] truncate">{doc.filename}</p>
                   <p className="text-xs flex gap-1">
                     <span>{formatSize(doc.size)}</span>
                     <span>•</span>

@@ -38,6 +38,7 @@ function createWindow(): void {
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
+    icon,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: true,
@@ -93,7 +94,6 @@ app.whenReady().then(async () => {
       app.quit() // directory is required, can't continue
       return
     }
-    console.log(filePaths)
     conf.set('path', filePaths[0])
   }
 
@@ -261,7 +261,6 @@ app.whenReady().then(async () => {
     if (canceled || filePaths.length === 0) {
       return
     }
-    console.log(filePaths)
     conf.set('path', filePaths[0])
   })
 

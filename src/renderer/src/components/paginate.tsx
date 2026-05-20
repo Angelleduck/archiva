@@ -5,7 +5,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious
-} from '../ui/pagination'
+} from './ui/pagination'
 
 interface PaginateProps {
   page: number
@@ -13,7 +13,11 @@ interface PaginateProps {
   onPageUpdate: (selectedPage: number) => void
 }
 
-export function Paginate({ page, totalPages = 8, onPageUpdate }: PaginateProps): React.JSX.Element {
+export function Paginate({
+  page,
+  totalPages,
+  onPageUpdate
+}: PaginateProps): React.JSX.Element | undefined {
   const maxVisiblePages = 5
 
   // Determine the first page in the sliding window
@@ -31,12 +35,13 @@ export function Paginate({ page, totalPages = 8, onPageUpdate }: PaginateProps):
     pages.push(i)
   }
 
+  if (totalPages < 2) return
+
   return (
     <Pagination>
       <PaginationContent>
-        {/* Previous button */}
         <PaginationItem onClick={() => onPageUpdate(Math.max(1, page - 1))}>
-          <PaginationPrevious />
+          <PaginationPrevious text="Précédent" />
         </PaginationItem>
 
         {/* Page numbers */}
@@ -46,12 +51,8 @@ export function Paginate({ page, totalPages = 8, onPageUpdate }: PaginateProps):
           </PaginationItem>
         ))}
 
-        {/* Next button */}
-        <PaginationItem
-          // disabled={page === totalPages}
-          onClick={() => onPageUpdate(Math.min(totalPages, page + 1))}
-        >
-          <PaginationNext />
+        <PaginationItem onClick={() => onPageUpdate(Math.min(totalPages, page + 1))}>
+          <PaginationNext text="Suivant" />
         </PaginationItem>
       </PaginationContent>
     </Pagination>

@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom'
 
 export function Sidebar(): React.JSX.Element {
   return (
-    <div className="w-64 not-visited:flex flex-col p-4 gap-4 border-r border-gray-200">
+    <div className="w-64 not-visited:flex flex-col p-4 gap-4 border-r border-border-primary">
       <NavItem href="/">
         <House size={20} className="shrink-0" />
         Accueil
@@ -20,10 +20,10 @@ export function Sidebar(): React.JSX.Element {
         <Folder size={20} className="shrink-0" />
         Dossiers
       </NavItem>
-      <hr className="border-gray-200" />
+      <hr className="border-border-primary" />
       <NavItem href="/settings">
         <Settings />
-        Parametre
+        Paramètre
       </NavItem>
     </div>
   )
@@ -38,7 +38,7 @@ function NavItem({ children, href }: NavItemProps): React.JSX.Element {
   return (
     <NavLink
       className="flex items-center gap-3 text-gray-secondary rounded-md px-4 py-1.5 
-      hover:bg-gray-100 hover:text-black hover:[&>svg]:text-blue-400"
+      hover:bg-gray-100 hover:text-gray-tertiary hover:[&>svg]:text-blue-400"
       to={href}
     >
       {children}

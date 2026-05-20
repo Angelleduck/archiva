@@ -6,8 +6,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { Folder } from 'src/main/services/folder/folder.type'
 import { FolderItem } from '@renderer/components/folder/folder-item'
 import Loader from '@renderer/components/document/loader'
-import { Paginate } from '@renderer/components/document/paginate'
 import { Glass } from '@renderer/components/svg/glass'
+import { Paginate } from '@renderer/components/paginate'
 
 export default function Folders(): React.JSX.Element {
   const [folders, setFolders] = useState<Folder[]>([])
@@ -33,12 +33,15 @@ export default function Folders(): React.JSX.Element {
         window.api.folder.getFolderCount(searchTerm),
         sleep()
       ])
+
       if (result.success) {
         setFolders(result.data)
       }
+
       if (allPages.success) {
         setTotalPages(Math.ceil(allPages.data / 16))
       }
+
       setIsLoading(false)
     }
     getFolders()
@@ -107,6 +110,7 @@ export default function Folders(): React.JSX.Element {
     <>
       {showEdidtTitleModal && (
         <EditTitleModal
+          type="folder"
           onCloseModal={handleCloseEditTitleModal}
           name={folderObject.name}
           onEdit={handleEdit}

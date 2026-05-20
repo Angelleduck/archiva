@@ -25,7 +25,7 @@ export function StatsCard(): React.JSX.Element {
   return (
     <div
       className="grid md:grid-cols-[repeat(2,minmax(0,250px))] 
-    lg:grid-cols-[repeat(3,minmax(0,300px))] gap-6 mb-8"
+      lg:grid-cols-[repeat(3,minmax(0,300px))] gap-6 mb-8"
     >
       <Card Icon={FileText} color="blue" label="Documents" total={stats.totalDocuments} />
       <Card Icon={Folder} color="green" label="Dossiers" total={stats.totalFolders} />

@@ -23,7 +23,6 @@ export function useAvailableDocuments(
 
   useEffect(() => {
     async function getAlldocument(): Promise<void> {
-      console.log('trigger')
       const [result, allPages] = await Promise.all([
         window.api.folder.getDocumentsNotInFolder(folderId, page, searchTerm),
         window.api.folder.countDocumentNotInFolder(folderId, searchTerm)

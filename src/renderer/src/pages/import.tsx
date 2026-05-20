@@ -52,9 +52,11 @@ export default function Import(): React.JSX.Element {
     setDocuments([])
     setTrigger((prev) => prev + 1)
   }
+
   const handleRemoveSelectedDocument = (idx: number): void => {
     setDocuments((files) => files.filter((_, index) => idx !== index))
   }
+
   const handleOpenDocument = async (filePath: string, status: DocumentStatus): Promise<void> => {
     const result = await window.api.document.open(filePath, status)
     if (result.success === false && result.message) {
@@ -148,14 +150,14 @@ export default function Import(): React.JSX.Element {
             {files.map((doc, idx) => (
               <div key={idx} className="py-3 px-2.5 border-t border-border-primary">
                 <div className="flex gap-4 ">
-                  <File size={32} className="shrink-0" />
+                  <File size={32} className="shrink-0 text-black-primary" />
                   <div className="flex justify-between gap-2 items-center w-full">
                     <div className="flex flex-col">
                       <button
                         onClick={() => {
                           handleOpenDocument(doc.path, 'Already imported')
                         }}
-                        className="font-semibold text-black-primary cursor-pointer hover:text-blue-300 leading-tight"
+                        className="font-semibold text-black-primary cursor-pointer hover:text-blue-300 leading-tight max-w-[80ch] truncate"
                       >
                         {doc.filename}
                       </button>

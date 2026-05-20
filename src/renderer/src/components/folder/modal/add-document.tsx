@@ -1,4 +1,4 @@
-import { Paginate } from '@renderer/components/document/paginate'
+import { Paginate } from '@renderer/components/paginate'
 import { Glass } from '@renderer/components/svg/glass'
 import { useAvailableDocuments } from '@renderer/hooks/useAvailableDocuments'
 import { FolderIcon, Plus, X } from 'lucide-react'
