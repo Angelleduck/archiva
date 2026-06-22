@@ -1,4 +1,3 @@
-import Loader from '@renderer/components/document/loader'
 import { DocumentSection } from '@renderer/components/folder/document-section'
 import { DocumentModal } from '@renderer/components/folder/modal/add-document'
 import { SubfolderModal } from '@renderer/components/folder/modal/add-subfolder'
@@ -9,7 +8,7 @@ import { ChevronLeft, FolderIcon } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-export default function Folder(): React.JSX.Element {
+export default function Folder(): React.JSX.Element | null {
   const [showFolderModal, setShowFolderModal] = useState(false)
   const [showDocumentModal, setShowDocumentModal] = useState(false)
 
@@ -57,7 +56,7 @@ export default function Folder(): React.JSX.Element {
     refetch()
   }
 
-  if (isLoading) return <Loader />
+  if (isLoading) return null
 
   return (
     <>

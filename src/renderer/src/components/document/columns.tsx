@@ -14,17 +14,18 @@ import {
 
 import { Badge } from '../ui/badge'
 import { Checkbox } from '../ui/checkbox'
+import { formatSize } from '@renderer/helper/utils'
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
-export type Payment = {
+export type tableData = {
   id: string
-  amount: number
-  status: 'pending' | 'processing' | 'success' | 'failed'
-  email: string
+  filename: string
+  size: number
+  created_at: Date
 }
 
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<tableData>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -46,25 +47,31 @@ export const columns: ColumnDef<Payment>[] = [
     enableSorting: false,
     enableHiding: false
   },
+  // {
+  //   accessorKey: 'status',
+  //   header: 'Status'
+  // },
   {
-    accessorKey: 'status',
-    header: 'Status'
-  },
-  {
-    accessorKey: 'email',
-    header: 'Email'
-  },
-  {
-    accessorKey: 'amount',
-    header: () => <div className="text-right">Amount</div>,
+    accessorKey: 'filename',
+    header: 'Nom',
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue('amount'))
-      const formatted = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD'
-      }).format(amount)
-
-      return <div className="text-right font-medium">{formatted}</div>
+      return <div className="truncate max-w-[50ch]">{row.getValue('filename')}</div>
+    }
+  },
+  {
+    accessorKey: 'size',
+    header: () => <div className="">Taille</div>,
+    cell: ({ row }) => {
+      const value = row.getValue('size') as number
+      return <div className="">{formatSize(value)}</div>
+    }
+  },
+  {
+    accessorKey: 'created_at',
+    header: 'Date',
+    cell: ({ row }) => {
+      const date = new Date(row.getValue('created_at')).toLocaleDateString()
+      return <div>{date}</div>
     }
   },
   {

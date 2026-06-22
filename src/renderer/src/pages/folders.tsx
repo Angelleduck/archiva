@@ -5,11 +5,10 @@ import { Plus } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { Folder } from 'src/main/services/folder/folder.type'
 import { FolderItem } from '@renderer/components/folder/folder-item'
-import Loader from '@renderer/components/document/loader'
 import { Glass } from '@renderer/components/svg/glass'
 import { Paginate } from '@renderer/components/paginate'
 
-export default function Folders(): React.JSX.Element {
+export default function Folders(): React.JSX.Element | null {
   const [folders, setFolders] = useState<Folder[]>([])
   const [showModal, setShowModal] = useState(false)
   const [trigger, setTrigger] = useState(0)
@@ -22,16 +21,11 @@ export default function Folders(): React.JSX.Element {
   const [searchTerm, setSearchTerm] = useState('')
 
   useEffect(() => {
-    function sleep(): Promise<void> {
-      return new Promise((resolve) => setTimeout(resolve, 150))
-    }
-
     async function getFolders(): Promise<void> {
       // Wait for both the fetch and the minimum delay
       const [result, allPages] = await Promise.all([
         window.api.folder.getRootFolders(page, searchTerm),
-        window.api.folder.getFolderCount(searchTerm),
-        sleep()
+        window.api.folder.getFolderCount(searchTerm)
       ])
 
       if (result.success) {
@@ -104,7 +98,7 @@ export default function Folders(): React.JSX.Element {
     handleTrigger()
   }
 
-  if (isLoading) return <Loader />
+  if (isLoading) return null
 
   return (
     <>

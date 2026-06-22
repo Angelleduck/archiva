@@ -28,18 +28,13 @@ export function useFolderData(folderId: string | undefined, text: string): useFo
   const [totalPages, setTotalPages] = useState(0)
 
   useEffect(() => {
-    function sleep(): Promise<void> {
-      return new Promise((resolve) => setTimeout(resolve, 150))
-    }
-
     async function getFolderDocuments(folderId: string | undefined, text: string): Promise<void> {
       if (!folderId) return
       const [documentResult, folderResult, subfolders, allPages] = await Promise.all([
         window.api.folder.getDocuments(folderId),
         window.api.folder.get(folderId),
         window.api.folder.getSubfolders(folderId, page, text),
-        window.api.folder.getSubfolderCount(Number(folderId), text),
-        sleep()
+        window.api.folder.getSubfolderCount(Number(folderId), text)
       ])
 
       if (documentResult.success && folderResult.success && subfolders.success) {

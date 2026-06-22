@@ -1,33 +1,12 @@
-import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
+import { app, shell, BrowserWindow, dialog } from 'electron'
 import { join } from 'node:path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+
+import conf from './store/store'
+import { registerIpc } from './ipc'
 import DocumentService from './services/document/document.service'
 import FolderService from './services/folder/folder.service'
-import fs from 'node:fs'
-import path from 'node:path'
-import type {
-  DeleteType,
-  DocumentStatus,
-  GetAllType,
-  GetRecentType,
-  GetStatsType,
-  ImportDocucmentType,
-  ImportFileType,
-  OpenDocumentType,
-  SelectFile
-} from './services/document/document.type'
-import type {
-  CreateFolderType,
-  DeleteFolderType,
-  GetFolderDocumentsType,
-  GetFoldersType,
-  GetFolderType,
-  AddDocumentType,
-  RemoveDocumentType,
-  CreateSubfolderType
-} from './services/folder/folder.type'
-import conf from './store/store'
 import StoreService from './services/store/store.service'
 
 function createWindow(): void {
@@ -72,10 +51,6 @@ app.whenReady().then(async () => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
-  const documentService = new DocumentService()
-  const folderService = new FolderService()
-  const storeService = new StoreService()
-
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
   // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
@@ -97,171 +72,10 @@ app.whenReady().then(async () => {
     conf.set('path', filePaths[0])
   }
 
-  //=========================== Documents ============================//
-
-  ipcMain.handle('document:select-files', async (): Promise<SelectFile> => {
-    const { canceled, filePaths } = await dialog.showOpenDialog({
-      properties: ['openFile', 'multiSelections'],
-      filters: [{ name: 'Documents', extensions: ['pdf'] }]
-    })
-    if (canceled) {
-      return { success: false }
-    }
-
-    const documents = filePaths.map((item) => ({
-      filename: path.basename(item),
-      path: item
-    }))
-    return { success: true, data: documents }
-  })
-
-  ipcMain.handle('document:import', (_event, documents: ImportFileType[]): ImportDocucmentType => {
-    const filesNotImported: string[] = []
-    for (const document of documents) {
-      const { fileNotImported } = documentService.addFile({
-        filename: document.filename,
-        originalPath: document.path
-      })
-      if (fileNotImported) filesNotImported.push(fileNotImported)
-    }
-    return { filesNotImported }
-  })
-
-  ipcMain.handle(
-    'document:open',
-    async (_event, filePath: string, status: DocumentStatus): Promise<OpenDocumentType> => {
-      try {
-        if (!fs.existsSync(filePath)) {
-          const extraMessage =
-            status === 'Already imported' ? '\nSupprimer et re-importer le fichier.' : ''
-          return { success: false, message: `Impossible d'ouvrir le fichier.${extraMessage}` }
-        }
-        await shell.openPath(filePath)
-        return { success: true }
-      } catch {
-        const extraMessage =
-          status === 'Already imported' ? '\nSupprimer et re-importer le fichier.' : ''
-        return { success: false, message: `Impossible d'ouvrir le fichier.${extraMessage}` }
-      }
-    }
-  )
-
-  ipcMain.handle(
-    'document:get-all',
-    async (_event, offset: number, text: string): Promise<GetAllType> => {
-      return documentService.getAll(offset, text)
-    }
-  )
-
-  ipcMain.handle('document:get-recentFiles', async (): Promise<GetRecentType> => {
-    return documentService.getRecent()
-  })
-
-  ipcMain.handle('document:delete-file', async (_event, id: number): Promise<DeleteType> => {
-    return documentService.delete(id)
-  })
-
-  ipcMain.handle('document:get-stats', async (): Promise<GetStatsType> => {
-    return documentService.getStats()
-  })
-
-  ipcMain.handle('document:edit-title', async (_event, folderId: number, title: string) => {
-    return documentService.editDocumentTitle(folderId, title)
-  })
-
-  ipcMain.handle('document:count-all', async (_event, text: string) => {
-    return documentService.getAllDocumentCount(text)
-  })
-
-  //=========================== Folders ============================//
-
-  ipcMain.handle('folder:create', async (_event, name): Promise<CreateFolderType> => {
-    return folderService.createFolder(name)
-  })
-  ipcMain.handle(
-    'folder:create-subfolder',
-    async (_event, parentId, name): Promise<CreateSubfolderType> => {
-      return folderService.createSubfolder(parentId, name)
-    }
-  )
-
-  ipcMain.handle(
-    'folder:get-rootFolders',
-    async (_event, page: number, text: string): Promise<GetFoldersType> => {
-      return folderService.getRootFolders(page, text)
-    }
-  )
-  ipcMain.handle('folder:get', async (_event, id: string): Promise<GetFolderType> => {
-    return folderService.getFolder(id)
-  })
-  ipcMain.handle(
-    'folder:getSubfolders',
-    async (_event, id: string, page: number, text: string): Promise<GetFoldersType> => {
-      return folderService.getSubfolders(id, page, text)
-    }
-  )
-  ipcMain.handle(
-    'folder:get-document',
-    async (_event, id: string): Promise<GetFolderDocumentsType> => {
-      return folderService.getFolderDocuments(id)
-    }
-  )
-  ipcMain.handle('folder:delete', async (_event, id: number): Promise<DeleteFolderType> => {
-    return folderService.deleteFolder(id)
-  })
-  ipcMain.handle(
-    'folder:add-document',
-    async (_event, folderId: string, documentId: string): Promise<AddDocumentType> => {
-      return folderService.addDocument(folderId, documentId)
-    }
-  )
-  ipcMain.handle(
-    'folder:remove-document',
-    async (_event, folderId: number, documentId: number): Promise<RemoveDocumentType> => {
-      return folderService.removeDocument(folderId, documentId)
-    }
-  )
-
-  ipcMain.handle('folder:edit-title', async (_event, folderId: number, title: string) => {
-    return folderService.editFolderTitle(folderId, title)
-  })
-
-  ipcMain.handle('folder:count-all', async (_event, text: string) => {
-    return folderService.getAllFolderCount(text)
-  })
-  ipcMain.handle(
-    'folder:subfolder-CountAll',
-    async (_event, parentFolderId: number, text: string) => {
-      return folderService.getAllSubFolderCount(parentFolderId, text)
-    }
-  )
-  ipcMain.handle(
-    'folder:get-documentNotInFolder',
-    async (_event, id: number, arg: number, text: string) => {
-      return folderService.getDocumentsNotInFoler(id, arg, text)
-    }
-  )
-  ipcMain.handle('folder:countDocumentNotInFolder', async (_event, id: number, text: string) => {
-    return folderService.countDocumentsNotInFoler(id, text)
-  })
-
-  //=================================Store==================================//
-
-  ipcMain.handle('store:get', () => {
-    return storeService.getData()
-  })
-
-  ipcMain.handle('store:update', async () => {
-    const { canceled, filePaths } = await dialog.showOpenDialog({
-      properties: ['openDirectory'],
-      title: 'Choose where to store your documents',
-      buttonLabel: 'Select Folder'
-    })
-
-    if (canceled || filePaths.length === 0) {
-      return
-    }
-    conf.set('path', filePaths[0])
+  registerIpc({
+    documentService: new DocumentService(),
+    folderService: new FolderService(),
+    storeService: new StoreService()
   })
 
   createWindow()

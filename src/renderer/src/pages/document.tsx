@@ -1,6 +1,5 @@
-import { columns, Payment } from '@renderer/components/document/columns'
+import { columns } from '@renderer/components/document/columns'
 import { DataTable } from '@renderer/components/document/data-table'
-import Loader from '@renderer/components/document/loader'
 import { DocumentMenu } from '@renderer/components/document/menu'
 import { DeleteModal } from '@renderer/components/folder/modal/delete'
 import { EditTitleModal } from '@renderer/components/folder/modal/edit-title'
@@ -12,7 +11,7 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import type { Document, DocumentStatus } from 'src/main/services/document/document.type'
 
-export default function Document(): React.JSX.Element {
+export default function Document(): React.JSX.Element | null {
   const [documents, setDocuments] = useState<Document[]>([])
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [documentObject, setDocumentObject] = useState({ name: '', id: 0 })
@@ -41,6 +40,8 @@ export default function Document(): React.JSX.Element {
     }
     getAlldocument()
   }, [trigger, page])
+
+  console.log(documents)
 
   const handleOpenDocument = async (filePath: string, status: DocumentStatus): Promise<void> => {
     const result = await window.api.document.open(filePath, status)
@@ -109,34 +110,7 @@ export default function Document(): React.JSX.Element {
     setTrigger((prev) => prev + 1)
   }
 
-  const data: Payment[] = [
-    {
-      id: '728ed52f',
-      amount: 100,
-      status: 'pending',
-      email: 'm@example.com'
-    },
-    {
-      id: '728ed5lm',
-      amount: 100,
-      status: 'pending',
-      email: 'm@exmlample.com'
-    },
-    {
-      id: '728ed5st',
-      amount: 130,
-      status: 'pending',
-      email: 'm@ellxample.com'
-    },
-    {
-      id: '728ed5lk',
-      amount: 120,
-      status: 'pending',
-      email: 'mm@example.com'
-    }
-  ]
-
-  if (isLoading) return <Loader />
+  if (isLoading) return null
 
   return (
     <>
@@ -190,7 +164,7 @@ export default function Document(): React.JSX.Element {
       </div> */}
 
       <div className="container mx-auto py-10">
-        <DataTable columns={columns} data={data} />
+        <DataTable columns={columns} data={documents} />
       </div>
     </>
   )
