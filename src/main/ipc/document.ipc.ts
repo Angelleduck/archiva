@@ -5,6 +5,7 @@ import fs from 'node:fs'
 
 import type {
   DeleteType,
+  Document,
   DocumentStatus,
   GetAllType,
   GetRecentType,
@@ -63,22 +64,26 @@ export function registerDocumentIpc(documentService: DocumentService): void {
     }
   )
 
-  ipcMain.handle(
-    'document:get-all',
-    async (_event, offset: number, text: string): Promise<GetAllType> => {
-      return documentService.getAll(offset, text)
-    }
-  )
+  ipcMain.handle('document:get-all', (_event, offset: number, text: string): GetAllType => {
+    return documentService.getAll(offset, text)
+  })
 
-  ipcMain.handle('document:get-recentFiles', async (): Promise<GetRecentType> => {
+  ipcMain.handle('document:get-recentFiles', (): GetRecentType => {
     return documentService.getRecent()
   })
 
-  ipcMain.handle('document:delete-file', async (_event, id: number): Promise<DeleteType> => {
-    return documentService.delete(id)
-  })
+  ipcMain.handle(
+    'document:delete-file',
+    (_event, data: Document[] | Document): Promise<DeleteType> => {
+      if (Array.isArray(data)) {
+        return documentService.deleteMultipleFiles(data)
+      } else {
+        return documentService.deleteSingleFile(data)
+      }
+    }
+  )
 
-  ipcMain.handle('document:get-stats', async (): Promise<GetStatsType> => {
+  ipcMain.handle('document:get-stats', (): GetStatsType => {
     return documentService.getStats()
   })
 
@@ -86,7 +91,7 @@ export function registerDocumentIpc(documentService: DocumentService): void {
     return documentService.editDocumentTitle(folderId, title)
   })
 
-  ipcMain.handle('document:count-all', async (_event, text: string) => {
+  ipcMain.handle('document:count-all', (_event, text: string) => {
     return documentService.getAllDocumentCount(text)
   })
 }

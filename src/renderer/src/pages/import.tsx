@@ -14,7 +14,7 @@ export default function Import(): React.JSX.Element {
   const [files, setFiles] = useState<DocumentType[]>([])
   const [trigger, setTrigger] = useState(0)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [documentObject, setDocumentObject] = useState({ name: '', id: 0 })
+  const [documentObject, setDocumentObject] = useState<DocumentType>()
 
   useEffect(() => {
     async function getDocument(): Promise<void> {
@@ -64,12 +64,11 @@ export default function Import(): React.JSX.Element {
     }
   }
 
-  const handleDeleteFile = async (id: number): Promise<void> => {
-    const result = await window.api.document.delete(id)
+  const handleDeleteFile = async (doc: DocumentType | undefined): Promise<void> => {
+    // later no undefined
+    if (!doc) return
+    await window.api.document.delete(doc)
 
-    if (result.success) {
-      setFiles((prev) => prev.filter((doc) => doc.id !== id))
-    }
     setTrigger((prev) => prev + 1)
     handleCloseDeleteModal()
   }
@@ -78,8 +77,8 @@ export default function Import(): React.JSX.Element {
     setShowDeleteModal(false)
   }
 
-  const handleDeleteClick = useCallback((docInfo: { id: number; name: string }) => {
-    setDocumentObject(docInfo)
+  const handleDeleteClick = useCallback((doc: DocumentType) => {
+    setDocumentObject(doc)
     setShowDeleteModal(true)
   }, [])
 
@@ -88,8 +87,7 @@ export default function Import(): React.JSX.Element {
       {showDeleteModal && (
         <DeleteModal
           onCloseModal={handleCloseDeleteModal}
-          name={documentObject.name}
-          id={documentObject.id}
+          doc={documentObject}
           type="document"
           onDelete={handleDeleteFile}
         />
@@ -169,7 +167,7 @@ export default function Import(): React.JSX.Element {
                       className="p-2 hover:bg-red-50 text-red-400 rounded-lg cursor-pointer"
                       onClick={(e) => {
                         e.stopPropagation()
-                        handleDeleteClick({ id: doc.id, name: doc.filename })
+                        handleDeleteClick(doc)
                       }}
                     >
                       <Trash2 className="shrink-0" />

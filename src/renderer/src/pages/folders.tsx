@@ -22,7 +22,6 @@ export default function Folders(): React.JSX.Element | null {
 
   useEffect(() => {
     async function getFolders(): Promise<void> {
-      // Wait for both the fetch and the minimum delay
       const [result, allPages] = await Promise.all([
         window.api.folder.getRootFolders(page, searchTerm),
         window.api.folder.getFolderCount(searchTerm)

@@ -1,81 +1,53 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import type {
-  DeleteType,
+  Document,
   DocumentStatus,
-  editDocumentTitleType,
-  GetAllType,
-  getDocumentCountType,
-  GetRecentType,
-  GetStatsType,
-  ImportFileType,
-  OpenDocumentType,
-  SelectFile
+  ImportFileType
 } from '../main/services/document/document.type'
-import type {
-  AddDocumentType,
-  countDocumentNotInFolderType,
-  CreateFolderType,
-  CreateSubfolderType,
-  DeleteFolderType,
-  GetDocumentsNotInFolderType,
-  getFolderCountType,
-  GetFolderDocumentsType,
-  GetFoldersType,
-  GetFolderType,
-  RemoveDocumentType
-} from '../main/services/folder/folder.type'
 
 // Custom APIs for renderer
 const api = {
   //=========================== Documents ============================//
   document: {
-    selectFile: (): Promise<SelectFile> => ipcRenderer.invoke('document:select-files'),
+    selectFile: () => ipcRenderer.invoke('document:select-files'),
     importFile: (documents: ImportFileType[], category: string, tags: string) =>
       ipcRenderer.invoke('document:import', documents, category, tags),
-    getAll: (page: number, text: string): Promise<GetAllType> =>
-      ipcRenderer.invoke('document:get-all', page, text),
-    getRecent: (): Promise<GetRecentType> => ipcRenderer.invoke('document:get-recentFiles'),
-    open: (filePath: string, status: DocumentStatus): Promise<OpenDocumentType> =>
+    getAll: (page: number, text: string) => ipcRenderer.invoke('document:get-all', page, text),
+    getRecent: () => ipcRenderer.invoke('document:get-recentFiles'),
+    open: (filePath: string, status: DocumentStatus) =>
       ipcRenderer.invoke('document:open', filePath, status),
-    delete: (id: number): Promise<DeleteType> => ipcRenderer.invoke('document:delete-file', id),
-    stats: (): Promise<GetStatsType> => ipcRenderer.invoke('document:get-stats'),
-    editDocumentTitle: (id: number, title: string): Promise<editDocumentTitleType> =>
+    delete: (data: Document[] | Document) => ipcRenderer.invoke('document:delete-file', data),
+    stats: () => ipcRenderer.invoke('document:get-stats'),
+    editDocumentTitle: (id: number, title: string) =>
       ipcRenderer.invoke('document:edit-title', id, title),
-    getDocumentCount: (text: string): Promise<getDocumentCountType> =>
-      ipcRenderer.invoke('document:count-all', text)
+    getDocumentCount: (text: string) => ipcRenderer.invoke('document:count-all', text)
   },
 
   //=========================== Folders ============================//
   folder: {
-    getRootFolders: (page: number, text: string): Promise<GetFoldersType> =>
+    getRootFolders: (page: number, text: string) =>
       ipcRenderer.invoke('folder:get-rootFolders', page, text),
-    get: (id: string): Promise<GetFolderType> => ipcRenderer.invoke('folder:get', id),
-    getSubfolders: (id: string, page: number, text: string): Promise<GetFoldersType> =>
+    get: (id: string) => ipcRenderer.invoke('folder:get', id),
+    getSubfolders: (id: string, page: number, text: string) =>
       ipcRenderer.invoke('folder:getSubfolders', id, page, text),
-    getDocuments: (id: string): Promise<GetFolderDocumentsType> =>
-      ipcRenderer.invoke('folder:get-document', id),
+    getDocuments: (id: string) => ipcRenderer.invoke('folder:get-document', id),
     editFolderTitle: (id: number, title: string) =>
       ipcRenderer.invoke('folder:edit-title', id, title),
-    create: (name: string): Promise<CreateFolderType> => ipcRenderer.invoke('folder:create', name),
-    createSubfolder: (parentId: number, name: string): Promise<CreateSubfolderType> =>
+    create: (name: string) => ipcRenderer.invoke('folder:create', name),
+    createSubfolder: (parentId: number, name: string) =>
       ipcRenderer.invoke('folder:create-subfolder', parentId, name),
-    delete: (id: number): Promise<DeleteFolderType> => ipcRenderer.invoke('folder:delete', id),
-    addDocument: (folderId: string, documentId: string): Promise<AddDocumentType> =>
+    delete: (id: number) => ipcRenderer.invoke('folder:delete', id),
+    addDocument: (folderId: string, documentId: string) =>
       ipcRenderer.invoke('folder:add-document', folderId, documentId),
-    removeDocument: (folderId: string, documentId: string): Promise<RemoveDocumentType> =>
+    removeDocument: (folderId: string, documentId: string) =>
       ipcRenderer.invoke('folder:remove-document', folderId, documentId),
-    getFolderCount: (text: string): Promise<getFolderCountType> =>
-      ipcRenderer.invoke('folder:count-all', text),
-    getSubfolderCount: (parentFolderId: number, text: string): Promise<getFolderCountType> =>
+    getFolderCount: (text: string) => ipcRenderer.invoke('folder:count-all', text),
+    getSubfolderCount: (parentFolderId: number, text: string) =>
       ipcRenderer.invoke('folder:subfolder-CountAll', parentFolderId, text),
-    getDocumentsNotInFolder: (
-      id: number,
-      arg: number,
-      text: string
-    ): Promise<GetDocumentsNotInFolderType> =>
+    getDocumentsNotInFolder: (id: number, arg: number, text: string) =>
       ipcRenderer.invoke('folder:get-documentNotInFolder', id, arg, text),
 
-    countDocumentNotInFolder: (id: number, text: string): Promise<countDocumentNotInFolderType> =>
+    countDocumentNotInFolder: (id: number, text: string) =>
       ipcRenderer.invoke('folder:countDocumentNotInFolder', id, text)
   },
   //====================================Store=================================//

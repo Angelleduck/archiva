@@ -51,7 +51,7 @@ class DocumentService {
 
     try {
       let query = `SELECT * FROM documents`
-      const params: (string | number)[] = [] // <-- proper type
+      const params: (string | number)[] = []
 
       if (text && text.trim() !== '') {
         query += ` WHERE filename LIKE ?`
@@ -84,32 +84,40 @@ class DocumentService {
     }
   }
 
-  delete(id: number): DeleteType {
+  async delete(data: Document): Promise<DeleteType> {
     try {
-      // later  verify path
-
       const stmtPath = this.dbService.db.prepare(`
         SELECT path FROM documents
         WHERE id = ?
       `)
-      const result = stmtPath.get(id) as { path: string }
+      const result = stmtPath.get(data.id) as { path: string }
+
+      await fs.promises.unlink(result.path)
 
       const stmt = this.dbService.db.prepare('DELETE FROM documents WHERE id = ?')
-      stmt.run(id)
-
-      // if path doesn't exist it means file has been deleted or renamed manually
-      if (!fs.existsSync(result.path)) {
-        return { success: true, message: 'fichier supprimé' }
-      }
-
-      fs.unlink(result.path, (err) => {
-        if (err) throw err
-      })
-
+      stmt.run(data.id)
       return { success: true }
     } catch {
       return { success: false }
     }
+  }
+
+  async deleteMultipleFiles(datas: Document[]): Promise<DeleteType> {
+    for (const data of datas) {
+      const result = await this.delete(data)
+      if (!result.success) {
+        return { success: false, message: `${data.filename} n'a pas pu etre supprimé` }
+      }
+    }
+    return { success: true, message: 'tout les fichiers on été supprimé' }
+  }
+
+  async deleteSingleFile(data: Document): Promise<DeleteType> {
+    const result = await this.delete(data)
+    if (!result.success) {
+      return { success: false, message: `${data.filename} n'a pas pu etre supprimé` }
+    }
+    return { success: true, message: 'fichies supprimé' }
   }
 
   editDocumentTitle(id: number, title: string): editDocumentTitleType {

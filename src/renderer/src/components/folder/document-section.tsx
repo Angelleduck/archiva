@@ -5,7 +5,7 @@ import type { FolderDocuments as FolderDocumentsType } from 'src/main/services/f
 import { Glass } from '../svg/glass'
 import { useDoucmentSearch } from '@renderer/hooks/useDocumentSearch'
 import toast from 'react-hot-toast'
-import { DocumentStatus } from 'src/main/services/document/document.type'
+import type { DocumentStatus } from 'src/main/services/document/document.type'
 
 interface DocumentSectionProps {
   folderDocuments: FolderDocumentsType[]
@@ -24,7 +24,7 @@ export function DocumentSection({
 
   const handleOpenDocument = async (filePath: string, status: DocumentStatus): Promise<void> => {
     const result = await window.api.document.open(filePath, status)
-    if (result.success == false && result.message) {
+    if (result.success === false && result.message) {
       toast.error(result.message)
     }
   }

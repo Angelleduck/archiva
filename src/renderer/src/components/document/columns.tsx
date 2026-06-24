@@ -1,4 +1,4 @@
-import { ColumnDef } from '@tanstack/react-table'
+import type { ColumnDef } from '@tanstack/react-table'
 
 import { MoreHorizontal } from 'lucide-react'
 
@@ -12,20 +12,19 @@ import {
   DropdownMenuTrigger
 } from '../ui/dropdown-menu'
 
-import { Badge } from '../ui/badge'
 import { Checkbox } from '../ui/checkbox'
 import { formatSize } from '@renderer/helper/utils'
+import type { Document, DocumentStatus } from 'src/main/services/document/document.type'
+import toast from 'react-hot-toast'
 
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
-export type tableData = {
-  id: string
-  filename: string
-  size: number
-  created_at: Date
+const handleOpenDocument = async (filePath: string, status: DocumentStatus): Promise<void> => {
+  const result = await window.api.document.open(filePath, status)
+  if (result.success === false && result.message) {
+    toast.error(result.message)
+  }
 }
 
-export const columns: ColumnDef<tableData>[] = [
+export const columns: ColumnDef<Document>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -47,15 +46,18 @@ export const columns: ColumnDef<tableData>[] = [
     enableSorting: false,
     enableHiding: false
   },
-  // {
-  //   accessorKey: 'status',
-  //   header: 'Status'
-  // },
   {
     accessorKey: 'filename',
     header: 'Nom',
     cell: ({ row }) => {
-      return <div className="truncate max-w-[50ch]">{row.getValue('filename')}</div>
+      return (
+        <div
+          onClick={() => handleOpenDocument(row.original.path, 'Already imported')}
+          className="truncate max-w-[50ch] cursor-pointer hover:underline hover:text-blue-400"
+        >
+          {row.getValue('filename')}
+        </div>
+      )
     }
   },
   {
@@ -76,9 +78,7 @@ export const columns: ColumnDef<tableData>[] = [
   },
   {
     id: 'actions',
-    cell: ({ row }) => {
-      const payment = row.original
-
+    cell: () => {
       return (
         <div className="text-right">
           <DropdownMenu>
@@ -90,9 +90,7 @@ export const columns: ColumnDef<tableData>[] = [
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(payment.id)}>
-                Copy payment ID
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => {}}>Copy payment ID</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>View customer</DropdownMenuItem>
               <DropdownMenuItem>View payment details</DropdownMenuItem>

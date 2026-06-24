@@ -1,6 +1,7 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import type {
   DeleteType,
+  Document,
   DocumentStatus,
   editDocumentTitleType,
   GetAllType,
@@ -38,7 +39,7 @@ declare global {
         getAll: (offset: number, text: string) => Promise<GetAllType>
         getRecent: () => Promise<GetRecentType>
         open: (path: string, status: DocumentStatus) => Promise<OpenDocumentType>
-        delete: (id: number) => Promise<DeleteType>
+        delete: (data: Document[] | Document) => Promise<DeleteType>
         editDocumentTitle: (id: number, title: string) => Promise<editDocumentTitleType>
         stats: () => Promise<GetStatsType>
         getDocumentCount: (searchText: string) => Promise<getDocumentCountType>

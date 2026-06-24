@@ -1,34 +1,68 @@
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import {
+  type ColumnDef,
+  type ColumnFiltersState,
+  flexRender,
+  getCoreRowModel,
+  useReactTable
+} from '@tanstack/react-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import { useEffect, useState } from 'react'
+import { Button } from '../ui/button'
+import type { Document } from 'src/main/services/document/document.type'
+import toast from 'react-hot-toast'
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+interface DataTableProps {
+  columns: ColumnDef<Document>[]
+  data: Document[]
+  onTrigger: () => void
 }
 
-export function DataTable<TData, TValue>({
-  columns,
-  data
-}: DataTableProps<TData, TValue>): React.JSX.Element {
+export function DataTable({ columns, data, onTrigger }: DataTableProps): React.JSX.Element {
   const [rowSelection, setRowSelection] = useState({})
+  const [selectedRows, setSelectedRows] = useState<Document[]>([])
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     onRowSelectionChange: setRowSelection,
+    onColumnFiltersChange: setColumnFilters,
     state: {
-      rowSelection
+      rowSelection,
+      columnFilters
     }
   })
 
   useEffect(() => {
-    const selectedRows = table.getSelectedRowModel().rows.map((row) => row.original)
-    console.log('Selected rows:', selectedRows)
+    const rows = table.getSelectedRowModel().rows.map((row) => row.original)
+    setSelectedRows(rows)
   }, [rowSelection, table])
+
+  const handleDeleteFile = async (): Promise<void> => {
+    const result = await window.api.document.delete(selectedRows)
+    if (!result.success && result.message) {
+      toast.error(result.message)
+      // return later
+    } else if (result.success && result.message) {
+      toast.success(result.message)
+    }
+    onTrigger()
+    setRowSelection({})
+  }
 
   return (
     <div>
+      <div className="flex justify-end my-4 min-h-9">
+        {table.getFilteredSelectedRowModel().rows.length > 0 && (
+          <Button
+            onClick={handleDeleteFile}
+            size="lg"
+            className="bg-destructive/80 hover:bg-destructive"
+          >
+            Supprimer
+          </Button>
+        )}
+      </div>
       <div className="overflow-hidden rounded-md border bg-white">
         <Table>
           <TableHeader>
