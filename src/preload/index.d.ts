@@ -20,6 +20,7 @@ import type {
   CreateSubfolderType,
   DeleteFolderType,
   editFolderTitleType,
+  Folder,
   GetDocumentsNotInFolderType,
   getFolderCountType,
   GetFolderDocumentsType,
@@ -48,11 +49,11 @@ declare global {
         getRootFolders: (page: number, text: string) => Promise<GetFoldersType>
         get: (id: string) => Promise<GetFolderType>
         getSubfolders: (id: string, page: number, text: string) => Promise<GetFoldersType>
-        editFolderTitle: (id: number, title: string) => Promise<editFolderTitleType>
+        editFolderTitle: (folder: Folder, title: string) => Promise<editFolderTitleType>
         getDocuments: (id: string) => Promise<GetFolderDocumentsType>
         create: (name: string) => Promise<CreateFolderType>
         createSubfolder: (parentId: number, name: string) => Promise<CreateSubfolderType>
-        delete: (id: number) => Promise<DeleteFolderType>
+        delete: (folder: Folder) => Promise<DeleteFolderType>
         addDocument: (folderId: number, documentId: number) => Promise<AddDocumentType>
         removeDocument: (folderId: number, documentId: number) => Promise<RemoveDocumentType>
         getFolderCount: (searchText: string) => Promise<getFolderCountType>

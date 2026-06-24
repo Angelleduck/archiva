@@ -31,10 +31,10 @@ export function Subfolders({
 }: SubfoldersProps): React.JSX.Element {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
-  const [folderObject, setfolderObject] = useState({ name: '', id: 0 })
+  const [folder, setfolder] = useState<Folder | null>(null)
 
   const handleSelectFolder = useCallback((folder: Folder, purpose: 'delete' | 'edit'): void => {
-    setfolderObject({ id: folder.id, name: folder.name })
+    setfolder(folder)
     if (purpose === 'delete') {
       setShowDeleteModal(true)
     } else {
@@ -42,19 +42,23 @@ export function Subfolders({
     }
   }, [])
 
-  const handleEdit = async (id: number, title: string): Promise<void> => {
-    const result = await window.api.folder.editFolderTitle(id, title)
+  const handleEdit = async (folder: Folder | null, title: string): Promise<void> => {
+    if (!folder) return
+    const result = await window.api.folder.editFolderTitle(folder, title)
     if (result.success) {
       setSubfolders((prev) =>
-        prev.map((folder) => (folder.id === id ? { ...folder, name: title } : folder))
+        prev.map((currFolder) =>
+          currFolder.id === folder.id ? { ...currFolder, name: title } : folder
+        )
       )
     }
 
     handleCloseEditTitleModal()
   }
 
-  const handleDeleteFolder = async (id: number): Promise<void> => {
-    await window.api.folder.delete(id)
+  const handleDeleteFolder = async (folder: Folder | null): Promise<void> => {
+    if (!folder) return
+    await window.api.folder.delete(folder)
 
     if (subfolders.length === 1 && page > 1) {
       setPage((page) => page - 1)
@@ -85,19 +89,15 @@ export function Subfolders({
       {showEditTitleModal && (
         <EditTitleModal
           onCloseModal={handleCloseEditTitleModal}
-          name={folderObject.name}
           onEdit={handleEdit}
-          id={folderObject.id}
-          type="folder"
+          folder={folder}
         />
       )}
       {showDeleteModal && (
         <DeleteModal
           onCloseModal={handleCloseDeleteModal}
-          name={folderObject.name}
           onDelete={handleDeleteFolder}
-          type="dossier"
-          id={folderObject.id}
+          folder={folder}
         />
       )}
       <div className="mb-4">

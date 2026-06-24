@@ -178,26 +178,26 @@ class FolderService {
     }
   }
 
-  deleteFolder(id: number): DeleteFolderType {
+  deleteFolder(data: Folder): DeleteFolderType {
     try {
       const stmt = this.dbService.db.prepare(`
         DELETE FROM folders
         WHERE id = ?
       `)
-      stmt.run(id)
+      stmt.run(data.id)
       return { success: true }
     } catch {
       return { success: false }
     }
   }
-  editFolderTitle(id: number, title: string): editFolderTitleType {
+  editFolderTitle(folder: Folder, title: string): editFolderTitleType {
     try {
       const stmt = this.dbService.db.prepare(`
         UPDATE folders
         SET name = ?
         WHERE id = ? ;
       `)
-      stmt.run(title, id)
+      stmt.run(title, folder.id)
       return { success: true }
     } catch {
       return { success: false }

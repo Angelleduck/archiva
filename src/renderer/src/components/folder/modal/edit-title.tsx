@@ -1,32 +1,29 @@
 import { useState } from 'react'
+import type { Folder } from 'src/main/services/folder/folder.type'
 
 interface EditTitleModalProps {
   onCloseModal: () => void
-  name: string
-  onEdit: (id: number, title: string) => Promise<void>
-  id: number
-  type: 'document' | 'folder'
+  onEdit: (folder: Folder | null, title: string) => Promise<void>
+  folder: Folder | null
 }
 
 export function EditTitleModal({
   onCloseModal,
-  name,
   onEdit,
-  id,
-  type
+  folder
 }: EditTitleModalProps): React.JSX.Element {
   const [title, setTitle] = useState('')
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault()
-    onEdit(id, title)
+    onEdit(folder, title)
   }
   return (
     <div className="inset-0 fixed bg-black/50 z-10 flex justify-center items-center">
       <form onSubmit={handleSubmit} className="basis-md max-w-md bg-white p-6 rounded-lg">
         <h3 className="font-bold text-xl mb-2">Modifier</h3>
-        <p>Modifier nom du {type === 'document' ? 'document' : 'dossier'}</p>
-        <p className="font-bold truncate">{name}</p>
+        <p>Modifier nom du dossier</p>
+        <p className="font-bold truncate">{folder?.name}</p>
         <div className="px-3 border-2 border-border-primary rounded-lg bg-white relative flex items-center gap-3 focus-within:border-blue-300 mb-2">
           <input
             onChange={(e) => setTitle(e.target.value)}

@@ -5,10 +5,10 @@ import { DataTable } from '@renderer/components/document/data-table'
 import { Paginate } from '@renderer/components/paginate'
 import { Glass } from '@renderer/components/svg/glass'
 import { useEffect, useRef, useState } from 'react'
-import type { Document } from 'src/main/services/document/document.type'
+import type { Document as DocumentType } from 'src/main/services/document/document.type'
 
 export default function Document(): React.JSX.Element | null {
-  const [documents, setDocuments] = useState<Document[]>([])
+  const [documents, setDocuments] = useState<DocumentType[]>([])
   // const [showDeleteModal, setShowDeleteModal] = useState(false)
   // const [documentObject, setDocumentObject] = useState({ name: '', id: 0 })
   const [isLoading, setIsLoading] = useState(true)

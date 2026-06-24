@@ -13,8 +13,8 @@ export default function Folders(): React.JSX.Element | null {
   const [showModal, setShowModal] = useState(false)
   const [trigger, setTrigger] = useState(0)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [showEdidtTitleModal, setShowEditTileModal] = useState(false)
-  const [folderObject, setfolderObject] = useState({ name: '', id: 0 })
+  const [showEditTitleModal, setShowEditTitleModal] = useState(false)
+  const [folder, setfolder] = useState<Folder | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(0)
@@ -48,8 +48,23 @@ export default function Folders(): React.JSX.Element | null {
     setTrigger((prev) => prev + 1)
   }
 
-  const handleDelete = async (id: number): Promise<void> => {
-    await window.api.folder.delete(id)
+  const handleEdit = async (folder: Folder | null, title: string): Promise<void> => {
+    if (!folder) return
+    const result = await window.api.folder.editFolderTitle(folder, title)
+    if (result.success) {
+      setFolders((prev) =>
+        prev.map((currFolder) =>
+          currFolder.id === folder.id ? { ...currFolder, name: title } : folder
+        )
+      )
+    }
+
+    handleCloseEditTitleModal()
+  }
+
+  const handleDeleteFolder = async (folder: Folder | null): Promise<void> => {
+    if (!folder) return
+    await window.api.folder.delete(folder)
 
     if (folders.length === 1 && page > 1) {
       setPage((page) => page - 1)
@@ -59,31 +74,20 @@ export default function Folders(): React.JSX.Element | null {
 
     handleCloseDeleteModal()
   }
-
-  const handleEdit = async (id: number, title: string): Promise<void> => {
-    const result = await window.api.folder.editFolderTitle(id, title)
-    if (result.success) {
-      setFolders((prev) =>
-        prev.map((folder) => (folder.id === id ? { ...folder, name: title } : folder))
-      )
-    }
-    handleCloseEditTitleModal()
-  }
-
   const handleCloseDeleteModal = (): void => {
     setShowDeleteModal(false)
   }
 
   const handleCloseEditTitleModal = (): void => {
-    setShowEditTileModal(false)
+    setShowEditTitleModal(false)
   }
 
   const handleSelectFolder = useCallback((folder: Folder, purpose: 'delete' | 'edit'): void => {
-    setfolderObject({ id: folder.id, name: folder.name })
-    if (purpose == 'delete') {
+    setfolder(folder)
+    if (purpose === 'delete') {
       setShowDeleteModal(true)
     } else {
-      setShowEditTileModal(true)
+      setShowEditTitleModal(true)
     }
   }, [])
 
@@ -101,22 +105,18 @@ export default function Folders(): React.JSX.Element | null {
 
   return (
     <>
-      {showEdidtTitleModal && (
+      {showEditTitleModal && (
         <EditTitleModal
-          type="folder"
           onCloseModal={handleCloseEditTitleModal}
-          name={folderObject.name}
           onEdit={handleEdit}
-          id={folderObject.id}
+          folder={folder}
         />
       )}
       {showDeleteModal && (
         <DeleteModal
           onCloseModal={handleCloseDeleteModal}
-          name={folderObject.name}
-          onDelete={handleDelete}
-          type="dossier"
-          id={folderObject.id}
+          onDelete={handleDeleteFolder}
+          folder={folder}
         />
       )}
       {showModal && <FolderModal onCloseModal={handleCloseModal} onTrigger={handleTrigger} />}
@@ -155,8 +155,8 @@ export default function Folders(): React.JSX.Element | null {
         </div>
 
         <div className="grid grid-cols-4 gap-x-6 gap-y-8 mb-4">
-          {folders.map((folder, idx: number) => (
-            <FolderItem folder={folder} handleSelectFolder={handleSelectFolder} key={idx} />
+          {folders.map((folder) => (
+            <FolderItem folder={folder} handleSelectFolder={handleSelectFolder} key={folder.id} />
           ))}
         </div>
         <Paginate onPageUpdate={handlePageUpdate} page={page} totalPages={totalPages} />

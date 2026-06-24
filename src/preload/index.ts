@@ -4,6 +4,7 @@ import type {
   DocumentStatus,
   ImportFileType
 } from '../main/services/document/document.type'
+import type { Folder } from '../main/services/folder/folder.type'
 
 // Custom APIs for renderer
 const api = {
@@ -31,12 +32,12 @@ const api = {
     getSubfolders: (id: string, page: number, text: string) =>
       ipcRenderer.invoke('folder:getSubfolders', id, page, text),
     getDocuments: (id: string) => ipcRenderer.invoke('folder:get-document', id),
-    editFolderTitle: (id: number, title: string) =>
-      ipcRenderer.invoke('folder:edit-title', id, title),
+    editFolderTitle: (folder: Folder, title: string) =>
+      ipcRenderer.invoke('folder:edit-title', folder, title),
     create: (name: string) => ipcRenderer.invoke('folder:create', name),
     createSubfolder: (parentId: number, name: string) =>
       ipcRenderer.invoke('folder:create-subfolder', parentId, name),
-    delete: (id: number) => ipcRenderer.invoke('folder:delete', id),
+    delete: (id: Folder) => ipcRenderer.invoke('folder:delete', id),
     addDocument: (folderId: string, documentId: string) =>
       ipcRenderer.invoke('folder:add-document', folderId, documentId),
     removeDocument: (folderId: string, documentId: string) =>

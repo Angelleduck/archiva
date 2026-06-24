@@ -9,7 +9,8 @@ import type {
   GetFolderType,
   AddDocumentType,
   RemoveDocumentType,
-  CreateSubfolderType
+  CreateSubfolderType,
+  Folder
 } from '../services/folder/folder.type'
 
 export function registerFolderIpc(folderService: FolderService): void {
@@ -44,8 +45,8 @@ export function registerFolderIpc(folderService: FolderService): void {
       return folderService.getFolderDocuments(id)
     }
   )
-  ipcMain.handle('folder:delete', async (_event, id: number): Promise<DeleteFolderType> => {
-    return folderService.deleteFolder(id)
+  ipcMain.handle('folder:delete', async (_event, data: Folder): Promise<DeleteFolderType> => {
+    return folderService.deleteFolder(data)
   })
   ipcMain.handle(
     'folder:add-document',
@@ -60,8 +61,8 @@ export function registerFolderIpc(folderService: FolderService): void {
     }
   )
 
-  ipcMain.handle('folder:edit-title', async (_event, folderId: number, title: string) => {
-    return folderService.editFolderTitle(folderId, title)
+  ipcMain.handle('folder:edit-title', async (_event, folder: Folder, title: string) => {
+    return folderService.editFolderTitle(folder, title)
   })
 
   ipcMain.handle('folder:count-all', async (_event, text: string) => {

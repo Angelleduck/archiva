@@ -1,4 +1,4 @@
-import { DeleteModal } from '@renderer/components/folder/modal/delete'
+import { DeleteModal } from '@renderer/components/document/modal/delete'
 import { formatSize } from '@renderer/helper/utils'
 import { Download, File, Trash2, X } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
@@ -145,8 +145,8 @@ export default function Import(): React.JSX.Element {
             <h2 className="text-xl font-bold">Récemment ajouté</h2>
           </div>
           <div>
-            {files.map((doc, idx) => (
-              <div key={idx} className="py-3 px-2.5 border-t border-border-primary">
+            {files.map((doc) => (
+              <div key={doc.id} className="py-3 px-2.5 border-t border-border-primary">
                 <div className="flex gap-4 ">
                   <File size={32} className="shrink-0 text-black-primary" />
                   <div className="flex justify-between gap-2 items-center w-full">
