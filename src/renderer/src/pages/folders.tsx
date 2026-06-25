@@ -2,7 +2,7 @@ import { FolderModal } from '@renderer/components/folder/modal/add-folder'
 import { DeleteModal } from '@renderer/components/folder/modal/delete'
 import { EditTitleModal } from '@renderer/components/folder/modal/edit-title'
 import { Plus } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Folder } from 'src/main/services/folder/folder.type'
 import { FolderItem } from '@renderer/components/folder/folder-item'
 import { Glass } from '@renderer/components/svg/glass'
@@ -54,7 +54,7 @@ export default function Folders(): React.JSX.Element | null {
     if (result.success) {
       setFolders((prev) =>
         prev.map((currFolder) =>
-          currFolder.id === folder.id ? { ...currFolder, name: title } : folder
+          currFolder.id === folder.id ? { ...currFolder, name: title } : currFolder
         )
       )
     }
@@ -82,14 +82,14 @@ export default function Folders(): React.JSX.Element | null {
     setShowEditTitleModal(false)
   }
 
-  const handleSelectFolder = useCallback((folder: Folder, purpose: 'delete' | 'edit'): void => {
+  const handleSelectFolder = (folder: Folder, purpose: 'delete' | 'edit'): void => {
     setfolder(folder)
     if (purpose === 'delete') {
       setShowDeleteModal(true)
     } else {
       setShowEditTitleModal(true)
     }
-  }, [])
+  }
 
   const handlePageUpdate = (selectedPage: number): void => {
     setPage(selectedPage)

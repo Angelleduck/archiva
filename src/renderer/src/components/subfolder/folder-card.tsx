@@ -2,7 +2,6 @@ import { memo } from 'react'
 import { FolderMenu } from '../folder/menu'
 import { FolderIcon } from 'lucide-react'
 import { Folder } from 'src/main/services/folder/folder.type'
-// import { useNavigate } from 'react-router-dom'
 
 interface FolderCardProps {
   folder: Folder
@@ -15,6 +14,7 @@ const FolderCard = memo(function FolderCard({
   handleSelectFolder,
   onNavigate
 }: FolderCardProps): React.JSX.Element {
+  console.log('clicked on select')
   return (
     <div
       onClick={() => onNavigate(folder.id)}

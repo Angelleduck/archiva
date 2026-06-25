@@ -86,25 +86,6 @@ export default function Document(): React.JSX.Element | null {
 
   return (
     <>
-      {/* {showDeleteModal && (
-        <DeleteModal
-          onCloseModal={handleCloseDeleteModal}
-          name={documentObject.name}
-          id={documentObject.id}
-          type="document"
-          onDelete={handleDeleteFile}
-        />
-      )}
-      {showEdidtTitleModal && (
-        <EditTitleModal
-          onCloseModal={handleCloseEditTitleModal}
-          name={documentObject.name}
-          onEdit={handleEdit}
-          id={documentObject.id}
-          type="document"
-        />
-      )} */}
-
       <div>
         <form
           onSubmit={handleSubmit}

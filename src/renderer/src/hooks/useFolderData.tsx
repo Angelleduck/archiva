@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type {
   FolderDocuments as FolderDocumentsType,
   Folder as FolderType
@@ -55,9 +55,9 @@ export function useFolderData(folderId: string | undefined, text: string): useFo
     setPage(selectedPage)
   }
 
-  const refetch = useCallback(() => {
+  const refetch = (): void => {
     setTrigger((prev) => prev + 1)
-  }, [])
+  }
 
   return {
     folderDocuments,

@@ -5,7 +5,7 @@ import { Subfolders } from '@renderer/components/folder/subfolders'
 import { Glass } from '@renderer/components/svg/glass'
 import { useFolderData } from '@renderer/hooks/useFolderData'
 import { ChevronLeft, FolderIcon } from 'lucide-react'
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 export default function Folder(): React.JSX.Element | null {
@@ -32,9 +32,9 @@ export default function Folder(): React.JSX.Element | null {
   const handleCloseDocumentModal = (): void => {
     setShowDocumentModal(false)
   }
-  const handleOpenDocumentModal = useCallback((): void => {
+  const handleOpenDocumentModal = (): void => {
     setShowDocumentModal(true)
-  }, [])
+  }
   const handleCloseFolderModal = (): void => {
     setShowFolderModal(false)
   }

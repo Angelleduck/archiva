@@ -1,7 +1,7 @@
 import { DeleteModal } from '@renderer/components/document/modal/delete'
 import { formatSize } from '@renderer/helper/utils'
 import { Download, File, Trash2, X } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import type {
   DocumentStatus,
@@ -77,10 +77,10 @@ export default function Import(): React.JSX.Element {
     setShowDeleteModal(false)
   }
 
-  const handleDeleteClick = useCallback((doc: DocumentType) => {
+  const handleDeleteClick = (doc: DocumentType): void => {
     setDocumentObject(doc)
     setShowDeleteModal(true)
-  }, [])
+  }
 
   return (
     <>

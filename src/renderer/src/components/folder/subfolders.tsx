@@ -2,7 +2,7 @@ import { CirclePlus } from 'lucide-react'
 
 import type { Folder, Folder as FolderType } from 'src/main/services/folder/folder.type'
 import { DeleteModal } from './modal/delete'
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 import { EditTitleModal } from './modal/edit-title'
 import { FolderCard } from '../subfolder/folder-card'
 import { useNavigate } from 'react-router-dom'
@@ -33,14 +33,14 @@ export function Subfolders({
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
   const [folder, setfolder] = useState<Folder | null>(null)
 
-  const handleSelectFolder = useCallback((folder: Folder, purpose: 'delete' | 'edit'): void => {
+  const handleSelectFolder = (folder: Folder, purpose: 'delete' | 'edit'): void => {
     setfolder(folder)
     if (purpose === 'delete') {
       setShowDeleteModal(true)
     } else {
       setShowEditTitleModal(true)
     }
-  }, [])
+  }
 
   const handleEdit = async (folder: Folder | null, title: string): Promise<void> => {
     if (!folder) return
@@ -48,7 +48,7 @@ export function Subfolders({
     if (result.success) {
       setSubfolders((prev) =>
         prev.map((currFolder) =>
-          currFolder.id === folder.id ? { ...currFolder, name: title } : folder
+          currFolder.id === folder.id ? { ...currFolder, name: title } : currFolder
         )
       )
     }
@@ -77,13 +77,9 @@ export function Subfolders({
 
   const navigate = useNavigate()
 
-  const handleNavigate = useCallback(
-    (id: number) => {
-      navigate(`/folders/${id}`)
-    },
-    [navigate]
-  )
-
+  const handleNavigate = (id: number): void => {
+    navigate(`/folders/${id}`)
+  }
   return (
     <>
       {showEditTitleModal && (

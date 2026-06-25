@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Document } from 'src/main/services/document/document.type'
 
 interface useAvailableDocumentsType {
@@ -43,9 +43,9 @@ export function useAvailableDocuments(
     setPage(selectedPage)
   }
 
-  const refetch = useCallback(() => {
+  const refetch = (): void => {
     setTrigger((prev) => prev + 1)
-  }, [])
+  }
 
   return { documentsNotInFolder, isLoading, handlePageUpdate, page, totalPages, setPage, refetch }
 }
